@@ -5,15 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SuriRedirector</title>
     <script src="https://kit.fontawesome.com/bef417f226.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="stars.css">
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
-<body>
+<body id="body">
+
+    <div class="stars-bg">
+        <div id="stars"></div>
+        <div id="stars2"></div>
+        <div id="stars3"></div>
+    </div>
+
+
     <div id="toastContainer"></div>
 
     <div class="loading-overlay" id="loadingOverlay" style="display:none;"></div>
     <div class="loading-spinner" id="loadingSpinner" style="display:none;"></div>
 
+    <div class="starmode" onclick="changeBackgroundColor()">
+        <i class="fa-solid fa-palette"></i>
+    </div>
+
+    <div class="star" onclick="toggleStarsBg();">
+        <i class="fa-solid fa-star"></i>
+    </div>
+    
+
+    <div id="background"></div>
+
+    
 
     <div class="container">
         <h1>SuriRedirect</h1>
@@ -67,6 +88,15 @@
         </div>
 </footer>
 
+
+<script>
+    function toggleStarsBg() {
+        const starsBg = document.querySelector('.stars-bg');
+        if (starsBg) {
+            starsBg.classList.toggle('hidden');
+        }
+    }
+</script>
     
 </body>
 </html>

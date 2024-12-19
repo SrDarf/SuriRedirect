@@ -319,3 +319,57 @@ function showError(message) {
         toastContainer.removeChild(toast);
     }, 3000);
 }
+
+
+const themes = [
+    ['#232526', '#414345'],
+    ['#0f0c29', '#302b63'], 
+    ['#1f4037', '#99f2c8'], 
+    ['#0f0c29', '#302b63'], 
+    ['#2c3e50', '#3498db'], 
+    ['#667eea', '#764ba2']  
+];
+
+function getRandomDirection() {
+    return '135deg'; 
+}
+
+function getRandomPosition() {
+    return [50, 50]; 
+}
+
+function changeBackgroundColor() {
+  
+    addShowClassTemporarily();
+
+    const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+    const [color1, color2] = randomTheme;
+    const direction = getRandomDirection();
+    document.body.style.background = `linear-gradient(${direction}, ${color1}, ${color2})`;
+
+    
+    setTimeout(() => {
+        const elements = document.querySelectorAll('*');
+        elements.forEach(element => {
+            element.classList.remove('show');
+            element.classList.add('show2');
+        });
+        addShowClassTemporarily(); 
+    }, 500); 
+}
+
+function addShowClassTemporarily() {
+    const elements = document.querySelectorAll('*');
+    elements.forEach(element => {
+        element.classList.add('show');
+    });
+
+    setTimeout(() => {
+        elements.forEach(element => {
+            element.classList.remove('show');
+            element.classList.remove('show2');
+        });
+    }, 500);
+}
+
+

@@ -7,6 +7,35 @@ body {
     line-height: 1.6;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #333;
+    transition: background 2s ease-in-out;
+}
+
+
+#background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0); 
+    z-index: -9;
+    transition: opacity 5s ease; 
+}
+
+
+
+
+
+
+.show {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out; 
+}
+
+
+.show2 {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out; 
 }
 
 .loading-overlay {
@@ -23,7 +52,7 @@ body {
 }
 
 .container {
-    flex: 1; /* Faz o conteúdo ocupar o espaço restante */
+    flex: 1; 
     width: 90%;
     max-width: 400px;
     padding: 2rem;
@@ -290,4 +319,41 @@ transition: 0.5s ease;
 
 .footer-links i:hover{
     transform: scale(1.1);
+}
+
+
+
+.starmode i {
+    color: white;
+    font-size: larger;
+    margin: 1rem;
+    position: absolute;
+    transition: transform 0.5s ease; 
+}
+
+.starmode i:hover {
+    transform: scale(1.1); 
+}
+
+
+.star i {
+    color: white;
+    font-size: larger;
+    margin: 1rem;
+    left: 2rem;
+    position: absolute;
+    transition: transform 0.5s ease; 
+}
+
+.star i:hover {
+    transform: scale(1.1); 
+}
+
+.hidden{
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.stars-bg{
+    transition: opacity 1s ease;
 }
