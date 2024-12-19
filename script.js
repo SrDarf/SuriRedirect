@@ -129,7 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const linkItem = document.createElement('div');
                     linkItem.className = 'link-item';
                     linkItem.innerHTML = `
-                        <img src="${link.imgUrl}" alt="${link.title}" class="link-image">
+                        <a href="${link.url}"target="_blank">
+                        <img src="${link.imgUrl}" alt="${link.title}" class="link-image"> </a>
                         <a href="${link.url}" target="_blank">${link.title} <br> <p>${link.descriptionUrl}</p></a>
 
                         <center><button class="delete-link delete-link-icon" data-id="${doc.id}">  <i class="fa-solid fa-trash"></i>       </button> </center>
@@ -244,7 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const linkItem = document.createElement('div');
                     linkItem.className = 'link-item';
                     linkItem.innerHTML = `
-                        <img src="${link.imgUrl}" alt="${link.title}" class="link-image imgfix">
+                        <a href="${link.url}"target="_blank">
+                        <img src="${link.imgUrl}" alt="${link.title}" class="link-image imgfix"> </a>
                         <a href="${link.url}" target="_blank">${link.title} <i class="fa-solid fa-link" onclick="simulateClick()"></i><br> <p>${link.descriptionUrl}</p> </a>
 
                     `;
@@ -273,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showAuthContainer();
     });
 
-    function showError(message) {
+function showError(message) {
         const toastContainer = document.getElementById('toastContainer');
         const toast = document.createElement('div');
         toast.className = 'toast';
@@ -291,10 +293,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            alert('Link copiado para a área de transferência!');
-        }).catch((error) => {
-            alert(`Erro ao copiar o link: ${error.message}`);
-        });
-    }
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showError('Copiado para a area de transferencia!');
+    }).catch((error) => {
+        alert(`Erro ao copiar o link: ${error.message}`);
+    });
+}
+
+function showError(message) {
+    const toastContainer = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+        toastContainer.removeChild(toast);
+    }, 3000);
+}
