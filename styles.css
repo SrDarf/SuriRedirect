@@ -149,10 +149,8 @@ h1 {
     font-weight: 600;
     flex: 1; 
     margin-left: 10px; 
-    max-width: calc(100% - 80px); 
     overflow: hidden; 
-    text-overflow: ellipsis; 
-    word-wrap: break-word; 
+
     white-space: normal; 
 }
 
@@ -160,9 +158,9 @@ h1 {
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.7);
     flex-wrap: wrap;
-    max-width: calc(100% - 80px); 
+    
     overflow: hidden; 
-    text-overflow: ellipsis; 
+
     word-wrap: break-word; 
     white-space: normal; 
 }
