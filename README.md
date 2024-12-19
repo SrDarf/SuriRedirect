@@ -33,7 +33,7 @@ Para acessar e utilizar o projeto, basta clicar no link abaixo:
 3. **Compartilhar Links:**
    - Cada conta possui um código único de compartilhamento.
    - Envie este código para outras pessoas para que elas possam acessar seus links.
-   - Caso queira os links podem ser compartilhados da seguinte forma: https://srdarf.github.io/SuriRedirect/#(codigo_aqui)
+   - Caso queira os links podem ser compartilhados da seguinte forma: https://srdarf.github.io/SuriRedirect/#codigo
 
 4. **Acessar Links Compartilhados:**
    - Insira o código de compartilhamento na seção correspondente e clique em "Ver Links Compartilhados" para visualizar os links públicos.
