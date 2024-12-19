@@ -130,8 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     linkItem.className = 'link-item';
                     linkItem.innerHTML = ` 
                         <img src="${link.imgUrl}" alt="${link.title}" class="link-image">
-                        <a href="${link.url}" target="_blank">${link.title}</a>
-                        <p>${link.descriptionUrl}</p>
+                        <a href="${link.url}" target="_blank">${link.title} <br> <p>${link.descriptionUrl}</p></a>
+                        
                         <center><button class="delete-link delete-link-icon" data-id="${doc.id}">  <i class="fa-solid fa-trash"></i>       </button> </center>
                     `;
                     linkList.appendChild(linkItem);
@@ -237,9 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     linkItem.className = 'link-item';
                     linkItem.innerHTML = ` 
                         <img src="${link.imgUrl}" alt="${link.title}" class="link-image imgfix">
-                        <a href="${link.url}" target="_blank">${link.title} <i class="fa-solid fa-link" onclick="simulateClick()"></i></a>
-                        <hr>
-                        <p>${link.descriptionUrl}</p>
+                        <a href="${link.url}" target="_blank">${link.title} <i class="fa-solid fa-link" onclick="simulateClick()"></i><br> <p>${link.descriptionUrl}</p> </a>
+                
+                        
                     `;
                     sharedLinkList.appendChild(linkItem);
                 });
