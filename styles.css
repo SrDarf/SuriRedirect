@@ -285,14 +285,18 @@ h1 {
 }
 
 #footer {
-background-color: #11111100; 
-color: #ddd; 
-text-align: center; 
-padding: 10px 0; 
-width: 100%;
-height: auto;
-transition: 0.5s ease;
+    position: fixed;
+    top: 0;
+    right: 0;
+    background-color: #11111100; 
+    color: #ddd; 
+    text-align: left; 
+    padding: 10px; 
+    width: auto; 
+    height: auto;
+    transition: 0.5s ease;
 }
+
 
 .footer-content {
 max-width: 1200px; 
