@@ -198,11 +198,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function displayShareCode(shareUrl) {
+    function displayShareCode() {
         db.collection('users').doc(currentUser.uid).get()
             .then((doc) => {
-                if (doc.exists && doc.data().shareUrl) {
-                    shareCodeDisplay.innerHTML = `Seu Código de Compartilhamento: ${doc.data().shareCode} `;
+                if (doc.exists && doc.data().shareCode) {
+                    const shareCode = doc.data().shareCode;
+                    const shareUrl = `https://srdarf.github.io/SuriRedirect/#${shareCode}`;
+                    
+                    
+                    shareCodeDisplay.innerHTML = `
+                        Seu Código de Compartilhamento: ${shareCode} 
+                        <a href="#" class="white" onclick="copyToClipboard('${shareUrl}')" title="Copiar link">
+                            <i class="fas fa-link"></i>
+                        </a>
+                    `;
                 } else {
                     generateShareCode(currentUser.uid);
                 }
@@ -283,3 +292,11 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchAndDisplaySharedLinks(shareCodeFromUrl);
     }
 });
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Link copiado para a área de transferência!');
+        }).catch((error) => {
+            alert(`Erro ao copiar o link: ${error.message}`);
+        });
+    }

@@ -154,6 +154,10 @@ h1 {
     white-space: normal; 
 }
 
+.white{
+    color: white;
+}
+
 .link-item p {
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.7);
