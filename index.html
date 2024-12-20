@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuriRedirector</title>
+    <script src="https://kit.fontawesome.com/bef417f226.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="stars.css">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body id="body">
+
+    <div class="stars-bg">
+        <div id="stars"></div>
+        <div id="stars2"></div>
+        <div id="stars3"></div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <div class="loading-overlay" id="loadingOverlay" style="display:none;"></div>
+    <div class="loading-spinner" id="loadingSpinner" style="display:none;"></div>
+
+    <div class="starmode" onclick="changeBackgroundColor()">
+        <i class="fa-solid fa-palette"></i>
+    </div>
+
+    <div class="star" onclick="toggleStarsBg();">
+        <i class="fa-solid fa-star"></i>
+    </div>
+    
+
+    <div id="background"></div>
+
+    
+
+    <div class="container">
+        <h1>SuriRedirect</h1>
+        <div id="authContainer" class="glass-panel">
+            <input type="email" id="emailInput" placeholder="Email" class="glass-input">
+            <input type="password" id="passwordInput" placeholder="Password" class="glass-input">
+            <button id="authButton" class="glass-button">Entrar</button>
+            <p id="authToggle">Não tem uma conta? <a href="#" id="authToggleLink">Criar conta</a></p>
+            <div class="divider">ou</div>
+            <input type="text" id="shareCodeInput" placeholder="Colocar Codigo de Link" class="glass-input">
+            <button id="viewSharedLinks" class="glass-button">Ver Link Compartilhado</button>
+        </div>
+        <div id="linkContainer" class="glass-panel" style="display: none;">
+            <div class="link-form">
+                <input type="text" id="linkTitle" placeholder="Link Title" class="glass-input">
+                <textarea id="linkDescription" placeholder="Link Description" class="glass-input"></textarea>
+                <input type="url" id="linkUrl" placeholder="https://example.com" class="glass-input">
+                <input type="url" id="linkImageUrl" placeholder="Image URL" class="glass-input">
+                <button id="addLink" class="glass-button">Adicionar Link</button>
+            </div>
+            <div id="linkList" class="link-list"></div>
+            <div id="shareCodeDisplay" class="share-code"></div>
+            <button id="signOutButton" class="glass-button">Deslogar</button>
+
+        </div>
+        <div id="sharedLinksContainer" class="glass-panel" style="display: none;">
+            <h2 id="sharedLinksTitle" class="shared-links-title"></h2>
+            <div id="sharedLinkList" class="link-list"></div>
+            <button id="backToAuth" class="glass-button">Voltar</button>
+        </div>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <script src="script.js"></script>
+
+
+<footer id="footer" >
+        <div class="footer-content">
+            <div class="footer-links">
+              <a href="https://github.com/srdarf" target="_blank" aria-label="GitHub">
+                <i class="fab fa-github"></i>
+              </a>
+              <a href="https://www.instagram.com/suri.yr/" target="_blank" aria-label="Twitter">
+                <i class="fab fa-instagram"></i>
+              </a>
+            </div>
+        </div>
+</footer>
+
+
+<script>
+    function toggleStarsBg() {
+        const starsBg = document.querySelector('.stars-bg');
+        if (starsBg) {
+            starsBg.classList.toggle('hidden');
+        }
+    }
+</script>
+    
+</body>
+</html>

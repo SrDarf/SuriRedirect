@@ -1,0 +1,364 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    transition: background 2s ease-in-out;
+}
+
+
+#background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0); 
+    z-index: -9;
+    transition: opacity 5s ease; 
+}
+
+
+
+
+
+
+.show {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out; 
+}
+
+
+.show2 {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out; 
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; 
+}
+
+.container {
+    flex: 1; 
+    width: 90%;
+    max-width: 400px;
+    padding: 2rem;
+    margin: 0 auto;
+}
+
+.loading-spinner {
+    position: fixed;
+    top: 50%;
+    left: 47%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+    z-index: 9999999;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    opacity: 0.5;
+    z-index: 999;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.container {
+    width: 90%;
+    max-width: 400px;
+    padding: 2rem;
+}
+
+h1 {
+    text-align: center;
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.glass-panel {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.glass-input, .glass-button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.glass-input {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    width: 94%;
+}
+
+.glass-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.glass-button {
+    background: rgba(255, 255, 255, 0.3);
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.glass-button:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.link-item {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap; 
+    overflow: hidden; 
+}
+
+.link-item:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.3);
+}
+
+.link-item img {
+    max-width: 80px;
+    max-height: 80px;
+    border-radius: 10px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.link-item a {
+    color: #ffffff;
+    font-style: normal;
+    text-decoration: none;
+    font-weight: 600;
+    flex: 1; 
+    margin-left: 10px; 
+    overflow: hidden; 
+
+    white-space: normal; 
+}
+
+.white{
+    color: white;
+}
+
+.link-item p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    flex-wrap: wrap;
+    
+    overflow: hidden; 
+
+    word-wrap: break-word; 
+    white-space: normal; 
+}
+
+.link-item button {
+    color: red;
+    border: none;
+    background-color: #33333300;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    transition: 0.5s ease;
+    z-index: 9999;
+
+}
+
+.link-item button:hover {
+    text-shadow: 150px red;
+    transform: scale(1.2);
+
+}
+
+.share-code {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #fff;
+    margin-top: 1rem;
+    font-weight: 600;
+}
+
+#authToggle {
+    text-align: center;
+    color: #fff;
+    margin-top: 1rem;
+}
+
+#authToggle a {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.divider {
+    text-align: center;
+    color: #fff;
+    margin: 1rem 0;
+    font-weight: 300;
+}
+
+.shared-links-title {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+#toastContainer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    gap: 10px;
+    z-index: 1000;
+}
+
+.toast {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+    animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    25% { opacity: 1; }
+    75% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+#footer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    background-color: #11111100; 
+    color: #ddd; 
+    text-align: left; 
+    padding: 10px; 
+    width: auto; 
+    height: auto;
+    transition: 0.5s ease;
+}
+
+
+.footer-content {
+max-width: 1200px; 
+margin: 0 auto; 
+}
+
+
+.footer-links a {
+color: #ddd; 
+margin: 0 10px; 
+text-decoration: none; 
+transition: transform 0.5s ease;
+}
+
+.footer-links a:hover {
+color: #fff; 
+transition: 0.5s ease;
+}
+
+.footer-links i {
+font-size: 24px; 
+transition: 0.5s ease;
+}
+
+.footer-links i:hover{
+    transform: scale(1.1);
+}
+
+
+
+.starmode i {
+    color: white;
+    font-size: larger;
+    margin: 1rem;
+    position: fixed;
+    transition: transform 0.5s ease; 
+}
+
+.starmode i:hover {
+    transform: scale(1.1); 
+}
+
+
+.star i {
+    color: white;
+    font-size: larger;
+    margin: 1rem;
+    left: 2rem;
+    position: fixed;
+    transition: transform 0.5s ease; 
+}
+
+.star i:hover {
+    transform: scale(1.1); 
+}
+
+.hidden{
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.stars-bg{
+    transition: opacity 1s ease;
+}
+
