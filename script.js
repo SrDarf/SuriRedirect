@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const signOutButton = document.getElementById('signOutButton');
     const backToAuthButton = document.getElementById('backToAuth');
     const sharedLinksTitle = document.getElementById('sharedLinksTitle');
-    const usernameInput = document.getElementById('usernameInput');
 
     let isSignUp = false;
 
@@ -68,21 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
         spinner.style.display = 'block';
 
         if (isSignUp) {
-            const username = usernameInput.value.trim();
-            if (!username) {
-                showError('Por favor, insira um nome de usuário.');
-                spinner.style.display = 'none';
-                overlay.style.display = 'none';
-                return;
-            }
             firebase.auth().createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     currentUser = userCredential.user;
-                    return db.collection('users').doc(currentUser.uid).set({
-                        username: username
-                    });
-                })
-                .then(() => {
                     generateShareCode(currentUser.uid);
                     showLinkContainer();
                 })
@@ -129,41 +116,87 @@ document.addEventListener('DOMContentLoaded', () => {
         authButton.textContent = isSignUp ? 'Cadastrar' : 'Entrar';
         authToggleLink.textContent = isSignUp ? 'Entrar' : 'Cadastrar';
         authToggle.firstChild.textContent = isSignUp ? 'Já tem uma conta? ' : "Não tem uma conta? ";
-        usernameInput.style.display = isSignUp ? 'block' : 'none';
     });
 
-    function renderLinks() {
-        if (!currentUser) return;
+// ... (mantenha o código existente)
 
-        db.collection('links').where('userId', '==', currentUser.uid).get()
-            .then((querySnapshot) => {
-                linkList.innerHTML = '';
-                querySnapshot.forEach((doc) => {
-                    const link = doc.data();
-                    const linkItem = document.createElement('div');
-                    linkItem.className = 'link-item';
-                    linkItem.innerHTML = `
-                        <a href="${link.url}"target="_blank"> 
-                        <img src="${link.imgUrl}" alt="${link.title}" class="link-image"> </a>
-                        <a href="${link.url}" target="_blank">${link.title} <br> <p>${link.descriptionUrl}</p></a>
-                        
-                        <center><button class="delete-link delete-link-icon" data-id="${doc.id}">  <i class="fa-solid fa-trash"></i>       </button> </center>
-                    `;
-                    linkList.appendChild(linkItem);
-                });
+function renderLinks() {
+    if (!currentUser) return;
+
+    db.collection('links').where('userId', '==', currentUser.uid).get()
+        .then((querySnapshot) => {
+            linkList.innerHTML = '';
+            querySnapshot.forEach((doc) => {
+                const link = doc.data();
+                const linkItem = document.createElement('div');
+                linkItem.className = 'link-item';
+                linkItem.innerHTML = `
+                    <a href="${link.url}" target="_blank"> 
+                    <img src="${link.imgUrl}" alt="${link.title}" class="link-image"> </a>
+                    <a href="${link.url}" target="_blank">${link.title} <br> <p>${link.descriptionUrl}</p></a>
+                    
+                    <button class="edit-link" data-id="${doc.id}"><i class="fa-solid fa-edit" style="color:white;" ></i></button>
+                    <button class="delete-link delete-link-icon" data-id="${doc.id}"><i class="fa-solid fa-trash"></i></button>
+                `;
+                linkList.appendChild(linkItem);
+            });
+        })
+        .catch((error) => {
+            showError(`Erro ao carregar links: ${error.message}`);
+        });
+}
+
+function editLink(id) {
+    db.collection('links').doc(id).get()
+        .then((doc) => {
+            if (doc.exists) {
+                const link = doc.data();
+                linkTitleInput.value = link.title;
+                linkUrlInput.value = link.url;
+                LinkImageInput.value = link.imgUrl;
+                linkDescription.value = link.descriptionUrl;
+                
+          
+                addLinkButton.textContent = 'Atualizar Link';
+                addLinkButton.setAttribute('data-edit-id', id);
+            }
+        })
+        .catch((error) => {
+            showError(`Erro ao carregar link para edição: ${error.message}`);
+        });
+}
+
+addLinkButton.addEventListener('click', () => {
+    const title = linkTitleInput.value.trim();
+    const url = linkUrlInput.value.trim();
+    const img = LinkImageInput.value.trim();
+    const description = linkDescription.value;
+
+    if (title && url && currentUser) {
+        const editId = addLinkButton.getAttribute('data-edit-id');
+        
+        if (editId) {
+            // Atualizar link existente
+            db.collection('links').doc(editId).update({
+                title: title,
+                url: url,
+                imgUrl: img,
+                descriptionUrl: description
+            })
+            .then(() => {
+                addLinkButton.textContent = 'Adicionar Link';
+                addLinkButton.removeAttribute('data-edit-id');
+                linkTitleInput.value = '';
+                linkUrlInput.value = '';
+                LinkImageInput.value = '';
+                linkDescription.value = '';
+                renderLinks();
             })
             .catch((error) => {
-                showError(`Erro ao carregar links: ${error.message}`);
+                showError(`Erro ao atualizar link: ${error.message}`);
             });
-    }
-
-    addLinkButton.addEventListener('click', () => {
-        const title = linkTitleInput.value.trim();
-        const url = linkUrlInput.value.trim();
-        const img = LinkImageInput.value.trim();
-        const description = linkDescription.value;
-
-        if (title && url && currentUser) {
+        } else {
+            // Adicionar novo link
             db.collection('links').add({
                 title: title,
                 url: url,
@@ -174,37 +207,44 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(() => {
                 linkTitleInput.value = '';
                 linkUrlInput.value = '';
+                LinkImageInput.value = '';
+                linkDescription.value = '';
                 renderLinks();
             })
             .catch((error) => {
                 showError(`Erro ao adicionar link: ${error.message}`);
             });
         }
-    });
+    }
+});
 
-    linkList.addEventListener('click', (e) => {
-        const deleteButton = e.target.closest('.delete-link-icon');
 
-        if (deleteButton) {
-            const id = deleteButton.getAttribute('data-id');
-            db.collection('links').doc(id).delete()
-                .then(() => {
-                    renderLinks();
-                })
-                .catch((error) => {
-                    showError(`Erro ao deletar link: ${error.message}`);
-                });
-        }
-    });
+linkList.addEventListener('click', (e) => {
+    const editButton = e.target.closest('.edit-link');
+    const deleteButton = e.target.closest('.delete-link-icon');
+
+    if (editButton) {
+        const id = editButton.getAttribute('data-id');
+        editLink(id);
+    } else if (deleteButton) {
+        const id = deleteButton.getAttribute('data-id');
+        db.collection('links').doc(id).delete()
+            .then(() => {
+                renderLinks();
+            })
+            .catch((error) => {
+                showError(`Erro ao deletar link: ${error.message}`);
+            });
+    }
+});
+
 
     function generateShareCode(userId) {
         const shareCode = Math.random().toString(36).substring(2, 8).toUpperCase();
         const shareUrl = `${window.location.href}#${shareCode}`;
-        const username = usernameInput.value
 
         db.collection('users').doc(userId).set({
             shareCode: shareCode,
-            username: username,
             shareUrl: shareUrl
         })
         .then(() => {
@@ -246,13 +286,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function fetchAndDisplaySharedLinks(shareCode) {
-        let sharedUsername = '';
         db.collection('users').where('shareCode', '==', shareCode).get()
             .then((querySnapshot) => {
                 if (!querySnapshot.empty) {
-                    const userDoc = querySnapshot.docs[0];
-                    const userId = userDoc.id;
-                    sharedUsername = userDoc.data().username || 'Usuário Desconhecido';
+                    const userId = querySnapshot.docs[0].id;
                     return db.collection('links').where('userId', '==', userId).get();
                 } else {
                     throw new Error('Código de compartilhamento inválido');
@@ -273,13 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     sharedLinkList.appendChild(linkItem);
                 });
-                const sharedLinksUsernameElement = document.getElementById('sharedLinksUsername');
-                if (sharedLinksUsernameElement) {
-                    sharedLinksUsernameElement.textContent = sharedUsername;
-                } else {
-                }
-                sharedLinksTitle.textContent = `Links Compartilhados por: ${sharedUsername}`;
-                sharedLinksTitle.style.display = 'block';
+                sharedLinksTitle.textContent = `Links Compartilhados (Código: ${shareCode})`;
                 showSharedLinksContainer();
             })
             .catch((error) => {
@@ -411,4 +442,5 @@ function addShowClassTemporarily() {
         });
     }, 500);
 }
+
 
