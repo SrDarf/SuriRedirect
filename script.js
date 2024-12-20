@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             showError('Erro ao fazer login: Usuário não encontrado.');
                             break;
                         case 'auth/invalid-login-credentials':
-                            showError('Erro ao fazer login: Email ou Senha estão incorretos.');
+                            showError('Erro ao fazer login: Email ou Senha estão incorretos');
                             break;
                         case 'auth/invalid-email':
                             showError('Erro ao fazer login: O endereço de e-mail está mal formatado.');
