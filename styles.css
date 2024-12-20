@@ -320,7 +320,7 @@ transition: 0.5s ease;
     color: white;
     font-size: larger;
     margin: 1rem;
-    position: absolute;
+    position: fixed;
     transition: transform 0.5s ease; 
 }
 
@@ -333,7 +333,7 @@ transition: 0.5s ease;
     font-size: larger;
     margin: 1rem;
     left: 2rem;
-    position: absolute;
+    position: fixed;
     transition: transform 0.5s ease; 
 }
 
