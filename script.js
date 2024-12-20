@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const signOutButton = document.getElementById('signOutButton');
     const backToAuthButton = document.getElementById('backToAuth');
     const sharedLinksTitle = document.getElementById('sharedLinksTitle');
+    const usernameInput = document.getElementById('usernameInput');
 
     let isSignUp = false;
 
@@ -67,9 +68,21 @@ document.addEventListener('DOMContentLoaded', () => {
         spinner.style.display = 'block';
 
         if (isSignUp) {
+            const username = usernameInput.value.trim();
+            if (!username) {
+                showError('Por favor, insira um nome de usuário.');
+                spinner.style.display = 'none';
+                overlay.style.display = 'none';
+                return;
+            }
             firebase.auth().createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     currentUser = userCredential.user;
+                    return db.collection('users').doc(currentUser.uid).set({
+                        username: username
+                    });
+                })
+                .then(() => {
                     generateShareCode(currentUser.uid);
                     showLinkContainer();
                 })
@@ -116,6 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         authButton.textContent = isSignUp ? 'Cadastrar' : 'Entrar';
         authToggleLink.textContent = isSignUp ? 'Entrar' : 'Cadastrar';
         authToggle.firstChild.textContent = isSignUp ? 'Já tem uma conta? ' : "Não tem uma conta? ";
+        usernameInput.style.display = isSignUp ? 'block' : 'none';
     });
 
     function renderLinks() {
@@ -186,9 +200,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function generateShareCode(userId) {
         const shareCode = Math.random().toString(36).substring(2, 8).toUpperCase();
         const shareUrl = `${window.location.href}#${shareCode}`;
+        const username = usernameInput.value
 
         db.collection('users').doc(userId).set({
             shareCode: shareCode,
+            username: username,
             shareUrl: shareUrl
         })
         .then(() => {
@@ -230,10 +246,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function fetchAndDisplaySharedLinks(shareCode) {
+        let sharedUsername = '';
         db.collection('users').where('shareCode', '==', shareCode).get()
             .then((querySnapshot) => {
                 if (!querySnapshot.empty) {
-                    const userId = querySnapshot.docs[0].id;
+                    const userDoc = querySnapshot.docs[0];
+                    const userId = userDoc.id;
+                    sharedUsername = userDoc.data().username || 'Usuário Desconhecido';
                     return db.collection('links').where('userId', '==', userId).get();
                 } else {
                     throw new Error('Código de compartilhamento inválido');
@@ -254,7 +273,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     sharedLinkList.appendChild(linkItem);
                 });
-                sharedLinksTitle.textContent = `Links Compartilhados (Código: ${shareCode})`;
+                const sharedLinksUsernameElement = document.getElementById('sharedLinksUsername');
+                if (sharedLinksUsernameElement) {
+                    sharedLinksUsernameElement.textContent = sharedUsername;
+                } else {
+                }
+                sharedLinksTitle.textContent = `Links Compartilhados por: ${sharedUsername}`;
+                sharedLinksTitle.style.display = 'block';
                 showSharedLinksContainer();
             })
             .catch((error) => {
@@ -386,5 +411,4 @@ function addShowClassTemporarily() {
         });
     }, 500);
 }
-
 
