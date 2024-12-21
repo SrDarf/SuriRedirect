@@ -362,3 +362,83 @@ transition: 0.5s ease;
     transition: opacity 1s ease;
 }
 
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(65, 65, 65, 0.281);
+    backdrop-filter: blur(1px);
+
+  }
+  
+  .modal-content {
+    background: rgba(37, 37, 37, 0.1);
+    margin: 15% auto;
+    z-index: 1001;
+    padding: 20px;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .modal h2 {
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  #usernameInput2 {
+    width: 95%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+  
+  #usernameInput2::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  #usernameInput {
+    width: 95%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+  
+  #usernameInput::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  #setUsernameButton {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: rgba(189, 189, 189, 0.3);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  #setUsernameButton:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+  
