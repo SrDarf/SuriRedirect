@@ -123,6 +123,15 @@ h1 {
     background: rgba(255, 255, 255, 0.2);
     color: #fff;
     width: 94%;
+    outline: none;
+    transition: all 0.3s ease-in-out; 
+    border: 1px solid transparent; 
+}
+
+.glass-input:focus {
+    outline: none; 
+    border: 1px solid white; 
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); 
 }
 
 .glass-input::placeholder {

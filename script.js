@@ -173,7 +173,6 @@ addLinkButton.addEventListener('click', () => {
         const editId = addLinkButton.getAttribute('data-edit-id');
 
         if (editId) {
-
             db.collection('links').doc(editId).update({
                 title: title,
                 url: url,
@@ -193,7 +192,6 @@ addLinkButton.addEventListener('click', () => {
                 showError(`Erro ao atualizar link: ${error.message}`);
             });
         } else {
-
             db.collection('links').add({
                 title: title,
                 url: url,
