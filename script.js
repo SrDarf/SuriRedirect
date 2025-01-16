@@ -330,7 +330,7 @@ function showUsernameModal() {
                       shareCodeDisplay.innerHTML = `
                           Seu Código de Compartilhamento: ${shareCode} 
                           <a href="#" class="white" onclick="copyToClipboard('${shareUrl}')" title="Copiar link">
-                              <i class="fas fa-link"></i>
+                              <i class="fas fa-link effect"></i>
                           </a>
                       `;
                   } else {
@@ -571,5 +571,3 @@ function showUsernameModal() {
           });
       }, 500);
   }
-  
-  

@@ -450,3 +450,9 @@ transition: 0.5s ease;
     background: rgba(255, 255, 255, 0.4);
   }
   
+.effect{
+    transition: 0.5s ease ;
+}  
+.effect:hover{
+    transform: scale(1.1);
+}
