@@ -20,10 +20,10 @@ function showUsernameModal() {
             }, 800); 
         })
         .catch((error) => {
-          showError(`Error setting username: ${error.message}`);
+          showError(`Erro ao definir úsuario ${error.message}`);
         });
       } else {
-        showError('Please enter a valid username');
+        showError('Selecione um nome de úsuario valido');
       }
     }
     
