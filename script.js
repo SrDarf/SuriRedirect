@@ -158,16 +158,16 @@ function showUsernameModal() {
                   .catch((error) => {
                       switch (error.code) {
                           case 'auth/user-not-found':
-                              showError('Error logging in: User not found.');
+                              showError('Erro ao fazer login: Úsuario não existente.');
                               break;
                           case 'auth/invalid-login-credentials':
-                              showError('Error logging in: Email or password incorrect');
+                              showError('Erro ao fazer o login: Email ou senha incorretos');
                               break;
                           case 'auth/invalid-email':
-                              showError('Error logging in: The email address is badly formatted.');
+                              showError('Erro no login: O Endereço de Email é invalido.');
                               break;
                           default:
-                              showError(`Error logging in: ${error.message}`);
+                              showError(`Erro ao fazer o Login: ${error.message}`);
                       }
                   })
                   .finally(() => {
