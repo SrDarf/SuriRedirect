@@ -72,6 +72,23 @@ function showUsernameModal() {
 
       let isSignUp = false;
 
+      firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+              currentUser = user;
+              const shareCodeFromUrl = window.location.hash.slice(1);
+              if (shareCodeFromUrl) {
+                  fetchAndDisplaySharedLinks(shareCodeFromUrl);
+              } else {
+                  showLinkContainer();
+                  renderLinks();
+                  displayShareCode();
+              }
+          } else {
+              currentUser = null;
+              showAuthContainer();
+          }
+      });
+
       function showAuthContainer() {
           authContainer.style.display = 'block';
           linkContainer.style.display = 'none';
@@ -213,6 +230,10 @@ function showUsernameModal() {
           .then((doc) => {
               if (doc.exists) {
                   const link = doc.data();
+                  if (link.userId !== currentUser.uid) {
+                      showError('Você não tem permissão para editar este link.');
+                      return;
+                  }
                   linkTitleInput.value = link.title;
                   linkUrlInput.value = link.url;
                   LinkImageInput.value = link.imgUrl;
@@ -237,11 +258,18 @@ function showUsernameModal() {
           const editId = addLinkButton.getAttribute('data-edit-id');
 
           if (editId) {
-              db.collection('links').doc(editId).update({
-                  title: title,
-                  url: url,
-                  imgUrl: img,
-                  descriptionUrl: description
+              db.collection('links').doc(editId).get().then((doc) => {
+                  if (!doc.exists || doc.data().userId !== currentUser.uid) {
+                      showError('Você não tem permissão para editar este link.');
+                      return;
+                  }
+                  return db.collection('links').doc(editId).update({
+                      title: title,
+                      url: url,
+                      imgUrl: img,
+                      descriptionUrl: description,
+                      isPublic: true
+                  });
               })
               .then(() => {
                   addLinkButton.textContent = 'Adicionar Link';
@@ -256,13 +284,14 @@ function showUsernameModal() {
                   showError(`Error updating link: ${error.message}`);
               });
           } else {
-              db.collection('links').add({
-                  title: title,
-                  url: url,
-                  imgUrl: img,
-                  descriptionUrl: description,
-                  userId: currentUser.uid
-              })
+                db.collection('links').add({
+                    title: title,
+                    url: url,
+                    imgUrl: img,
+                    descriptionUrl: description,
+                    userId: currentUser.uid,
+                    isPublic: true
+                })
               .then(() => {
                   linkTitleInput.value = '';
                   linkUrlInput.value = '';
@@ -286,13 +315,19 @@ function showUsernameModal() {
           editLink(id);
       } else if (deleteButton) {
           const id = deleteButton.getAttribute('data-id');
-          db.collection('links').doc(id).delete()
-              .then(() => {
-                  renderLinks();
-              })
-              .catch((error) => {
-                  showError(`Error deleting link: ${error.message}`);
-              });
+          db.collection('links').doc(id).get().then((doc) => {
+              if (!doc.exists || doc.data().userId !== currentUser.uid) {
+                  showError('Você não tem permissão para deletar este link.');
+                  return;
+              }
+              return db.collection('links').doc(id).delete();
+          })
+          .then(() => {
+              renderLinks();
+          })
+          .catch((error) => {
+              showError(`Error deleting link: ${error.message}`);
+          });
       }
   });
 
@@ -351,7 +386,6 @@ function showUsernameModal() {
 
       function updateUsername() {
         const newUsername = document.getElementById('usernameInput2').value.trim();
-        console.log("Novo nome de usuário:", newUsername);
 
         if (newUsername.length >= 3 && currentUser) {
           db.collection('users').doc(currentUser.uid).update({
@@ -385,7 +419,10 @@ function showUsernameModal() {
                       const userId = userDoc.id;
                       const username = userDoc.data().username || 'Usuário Desconhecido';
                       return Promise.all([
-                          db.collection('links').where('userId', '==', userId).get(),
+                          db.collection('links')
+                            .where('userId', '==', userId)
+                            .where('isPublic', '==', true)
+                            .get(),
                           Promise.resolve(username)
                       ]);
                   } else {
@@ -439,11 +476,6 @@ function showUsernameModal() {
           setTimeout(() => {
               toastContainer.removeChild(toast);
           }, 3000);
-      }
-
-      const shareCodeFromUrl = window.location.hash.slice(1);
-      if (shareCodeFromUrl) {
-          fetchAndDisplaySharedLinks(shareCodeFromUrl);
       }
 
     window.onclick = function(event) {
