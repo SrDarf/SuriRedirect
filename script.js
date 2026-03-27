@@ -1,11 +1,11 @@
 function showUsernameModal() {
     document.getElementById('usernameModal').style.display = 'block';
   }
-  
+
   function hideUsernameModal() {
     document.getElementById('usernameModal').style.display = 'none';
   }
-  
+
   function setUsername(userId) {
       const username = document.getElementById('usernameInput').value.trim();
       if (username) {
@@ -17,7 +17,7 @@ function showUsernameModal() {
             hideUsernameModal();
             setTimeout(() => {
               location.reload();
-            }, 800); 
+            }, 800);
         })
         .catch((error) => {
           showError(`Erro ao definir úsuario ${error.message}`);
@@ -26,14 +26,14 @@ function showUsernameModal() {
         showError('Selecione um nome de úsuario valido');
       }
     }
-    
-  
-  
+
+
+
   function promptForUsername(userId) {
     showUsernameModal();
     document.getElementById('setUsernameButton').onclick = () => setUsername(userId);
   }
-  
+
   const firebaseConfig = {
       apiKey: "AIzaSyBPlNEf9TFPme5bdxKe4kTijGceE10hpI0",
       authDomain: "spaceshooter-80cfa.firebaseapp.com",
@@ -42,13 +42,13 @@ function showUsernameModal() {
       messagingSenderId: "318371743078",
       appId: "1:318371743078:web:31db6f17990f3fbf4d34a7"
   };
-  
+
   firebase.initializeApp(firebaseConfig);
-  
+
   const db = firebase.firestore();
-  
+
   let currentUser = null;
-  
+
   document.addEventListener('DOMContentLoaded', () => {
       const authContainer = document.getElementById('authContainer');
       const linkContainer = document.getElementById('linkContainer');
@@ -71,26 +71,43 @@ function showUsernameModal() {
       const signOutButton = document.getElementById('signOutButton');
       const backToAuthButton = document.getElementById('backToAuth');
       const sharedLinksTitle = document.getElementById('sharedLinksTitle');
-  
+
       let isSignUp = false;
-  
+
+      firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+              currentUser = user;
+              const shareCodeFromUrl = window.location.hash.slice(1);
+              if (shareCodeFromUrl) {
+                  fetchAndDisplaySharedLinks(shareCodeFromUrl);
+              } else {
+                  showLinkContainer();
+                  renderLinks();
+                  displayShareCode();
+              }
+          } else {
+              currentUser = null;
+              showAuthContainer();
+          }
+      });
+
       function showAuthContainer() {
           authContainer.style.display = 'block';
           linkContainer.style.display = 'none';
           sharedLinksContainer.style.display = 'none';
       }
-  
+
       function showLinkContainer() {
           authContainer.style.display = 'none';
           linkContainer.style.display = 'block';
           sharedLinksContainer.style.display = 'none';
-          
-    
+
+
           const existingUsernameSection = document.querySelector('.username-section');
           if (existingUsernameSection) {
             existingUsernameSection.remove();
           }
-  
+
           const usernameSection = document.createElement('div');
           usernameSection.className = 'username-section mb-6 p-4 bg-gray-100 rounded-lg';
           usernameSection.innerHTML = `
@@ -111,34 +128,34 @@ function showUsernameModal() {
             </div>
           `;
           linkContainer.insertBefore(usernameSection, linkContainer.firstChild);
-  
+
           document.getElementById('updateUsernameButton').addEventListener('click', updateUsername);
           displayUsername();
       }
-  
+
       function showSharedLinksContainer() {
           authContainer.style.display = 'none';
           linkContainer.style.display = 'none';
           sharedLinksContainer.style.display = 'block';
       }
-  
+
       authButton.addEventListener('click', (e) => {
           e.preventDefault();
           const email = emailInput.value;
           const password = passwordInput.value;
-  
+
           const overlay = document.getElementById('loadingOverlay');
           const spinner = document.getElementById('loadingSpinner');
           overlay.style.display = 'block';
           spinner.style.display = 'block';
-  
+
           if (isSignUp) {
               firebase.auth().createUserWithEmailAndPassword(email, password)
                   .then((userCredential) => {
                       currentUser = userCredential.user;
                       generateShareCode(currentUser.uid);
                       promptForUsername(currentUser.uid);
-                      
+
                   })
                   .catch((error) => {
                       showError(`Error registering: ${error.message}`);
@@ -176,7 +193,7 @@ function showUsernameModal() {
                   });
           }
       });
-  
+
       authToggleLink.addEventListener('click', (e) => {
           e.preventDefault();
           isSignUp = !isSignUp;
@@ -184,10 +201,10 @@ function showUsernameModal() {
           authToggleLink.textContent = isSignUp ? 'Entrar' : 'Registrar';
           authToggle.firstChild.textContent = isSignUp ? 'Já tem uma conta? ' : "Não tem uma conta? ";
       });
-  
+
   function renderLinks() {
       if (!currentUser) return;
-  
+
       db.collection('links').where('userId', '==', currentUser.uid).get()
           .then((querySnapshot) => {
               linkList.innerHTML = '';
@@ -196,10 +213,10 @@ function showUsernameModal() {
                   const linkItem = document.createElement('div');
                   linkItem.className = 'link-item';
                   linkItem.innerHTML = `
-                      <a href="${link.url}" target="_blank"> 
+                      <a href="${link.url}" target="_blank">
                       <img src="${link.imgUrl}" alt="${link.title}" class="link-image"> </a>
                       <a href="${link.url}" target="_blank">${link.title} <br> <p>${link.descriptionUrl}</p></a>
-                      
+
                       <button class="edit-link" data-id="${doc.id}"><i class="fa-solid fa-edit" style="color:white;" ></i></button>
                       <button class="delete-link delete-link-icon" data-id="${doc.id}"><i class="fa-solid fa-trash"></i></button>
                   `;
@@ -210,18 +227,22 @@ function showUsernameModal() {
               showError(`Error loading links: ${error.message}`);
           });
   }
-  
+
   function editLink(id) {
       db.collection('links').doc(id).get()
           .then((doc) => {
               if (doc.exists) {
                   const link = doc.data();
+                  if (link.userId !== currentUser.uid) {
+                      showError('Você não tem permissão para editar este link.');
+                      return;
+                  }
                   linkTitleInput.value = link.title;
                   linkUrlInput.value = link.url;
                   LinkImageInput.value = link.imgUrl;
                   linkDescription.value = link.descriptionUrl;
-                  
-            
+
+
                   addLinkButton.textContent = 'Atualizar Link';
                   addLinkButton.setAttribute('data-edit-id', id);
               }
@@ -230,22 +251,29 @@ function showUsernameModal() {
               showError(`Error loading link for editing: ${error.message}`);
           });
   }
-  
+
   addLinkButton.addEventListener('click', () => {
       const title = linkTitleInput.value.trim();
       const url = linkUrlInput.value.trim();
       const img = LinkImageInput.value.trim();
       const description = linkDescription.value;
-  
+
       if (title && url && currentUser) {
           const editId = addLinkButton.getAttribute('data-edit-id');
-          
+
           if (editId) {
-              db.collection('links').doc(editId).update({
-                  title: title,
-                  url: url,
-                  imgUrl: img,
-                  descriptionUrl: description
+              db.collection('links').doc(editId).get().then((doc) => {
+                  if (!doc.exists || doc.data().userId !== currentUser.uid) {
+                      showError('Você não tem permissão para editar este link.');
+                      return;
+                  }
+                  return db.collection('links').doc(editId).update({
+                      title: title,
+                      url: url,
+                      imgUrl: img,
+                      descriptionUrl: description,
+                      isPublic: true
+                  });
               })
               .then(() => {
                   addLinkButton.textContent = 'Adicionar Link';
@@ -260,13 +288,14 @@ function showUsernameModal() {
                   showError(`Error updating link: ${error.message}`);
               });
           } else {
-              db.collection('links').add({
-                  title: title,
-                  url: url,
-                  imgUrl: img,
-                  descriptionUrl: description,
-                  userId: currentUser.uid
-              })
+                db.collection('links').add({
+                    title: title,
+                    url: url,
+                    imgUrl: img,
+                    descriptionUrl: description,
+                    userId: currentUser.uid,
+                    isPublic: true 
+                })
               .then(() => {
                   linkTitleInput.value = '';
                   linkUrlInput.value = '';
@@ -280,32 +309,38 @@ function showUsernameModal() {
           }
       }
   });
-  
-  
+
+
   linkList.addEventListener('click', (e) => {
       const editButton = e.target.closest('.edit-link');
       const deleteButton = e.target.closest('.delete-link-icon');
-  
+
       if (editButton) {
           const id = editButton.getAttribute('data-id');
           editLink(id);
       } else if (deleteButton) {
           const id = deleteButton.getAttribute('data-id');
-          db.collection('links').doc(id).delete()
-              .then(() => {
-                  renderLinks();
-              })
-              .catch((error) => {
-                  showError(`Error deleting link: ${error.message}`);
-              });
+          db.collection('links').doc(id).get().then((doc) => {
+              if (!doc.exists || doc.data().userId !== currentUser.uid) {
+                  showError('Você não tem permissão para deletar este link.');
+                  return;
+              }
+              return db.collection('links').doc(id).delete();
+          })
+          .then(() => {
+              renderLinks();
+          })
+          .catch((error) => {
+              showError(`Error deleting link: ${error.message}`);
+          });
       }
   });
-  
-  
+
+
       function generateShareCode(userId) {
           const shareCode = Math.random().toString(36).substring(2, 8).toUpperCase();
           const shareUrl = `${window.location.href}#${shareCode}`;
-  
+
           db.collection('users').doc(userId).set({
               shareCode: shareCode,
               shareUrl: shareUrl
@@ -317,18 +352,18 @@ function showUsernameModal() {
               showError(`Error generating share code: ${error.message}`);
           });
       }
-  
-  
+
+
       function displayShareCode() {
           db.collection('users').doc(currentUser.uid).get()
               .then((doc) => {
                   if (doc.exists && doc.data().shareCode) {
                       const shareCode = doc.data().shareCode;
                       const shareUrl = `https://srdarf.github.io/SuriRedirect/#${shareCode}`;
-                      
-                      
+
+
                       shareCodeDisplay.innerHTML = `
-                          Seu Código de Compartilhamento: ${shareCode} 
+                          Seu Código de Compartilhamento: ${shareCode}
                           <a href="#" class="white" onclick="copyToClipboard('${shareUrl}')" title="Copiar link">
                               <i class="fas fa-link effect"></i>
                           </a>
@@ -341,7 +376,7 @@ function showUsernameModal() {
                   showError(`Error getting share code: ${error.message}`);
               });
       }
-  
+
       function displayUsername() {
         db.collection('users').doc(currentUser.uid).get()
           .then((doc) => {
@@ -356,18 +391,17 @@ function showUsernameModal() {
             showError(`Erro ao obter nome de usuário: ${error.message}`);
           });
       }
-  
+
       function updateUsername() {
         const newUsername = document.getElementById('usernameInput2').value.trim();
-        console.log("Novo nome de usuário:", newUsername); 
-        
+
         if (newUsername.length >= 3 && currentUser) {
           db.collection('users').doc(currentUser.uid).update({
             username: newUsername
           })
           .then(() => {
             showError('Nome de usuário atualizado com sucesso!');
-            document.getElementById('usernameInput2').value = '';  
+            document.getElementById('usernameInput2').value = '';
             displayUsername();
           })
           .catch((error) => {
@@ -377,16 +411,16 @@ function showUsernameModal() {
           showError('Por favor, insira um nome de usuário válido');
         }
       }
-      
-      
-  
+
+
+
       viewSharedLinksButton.addEventListener('click', () => {
           const shareCode = shareCodeInput.value.trim();
           if (shareCode) {
               fetchAndDisplaySharedLinks(shareCode);
           }
       });
-  
+
       function fetchAndDisplaySharedLinks(shareCode) {
           db.collection('users').where('shareCode', '==', shareCode).get()
               .then((querySnapshot) => {
@@ -395,7 +429,10 @@ function showUsernameModal() {
                       const userId = userDoc.id;
                       const username = userDoc.data().username || 'Usuário Desconhecido';
                       return Promise.all([
-                          db.collection('links').where('userId', '==', userId).get(),
+                          db.collection('links')
+                            .where('userId', '==', userId)
+                            .where('isPublic', '==', true)
+                            .get(),
                           Promise.resolve(username)
                       ]);
                   } else {
@@ -408,12 +445,12 @@ function showUsernameModal() {
                       const link = doc.data();
                       const linkItem = document.createElement('div');
                       linkItem.className = 'link-item';
-                      linkItem.innerHTML = ` 
+                      linkItem.innerHTML = `
                           <a href="${link.url}"target="_blank">
                           <img src="${link.imgUrl}" alt="${link.title}" class="link-image imgfix"> </a>
                           <a href="${link.url}" target="_blank">${link.title} <i class="fa-solid fa-link" onclick="simulateClick()"></i><br> <p>${link.descriptionUrl}</p> </a>
-                  
-                          
+
+
                       `;
                       sharedLinkList.appendChild(linkItem);
                   });
@@ -424,7 +461,7 @@ function showUsernameModal() {
                   showError(`Erro ao ver os Links: ${error.message}`);
               });
       }
-  
+
       signOutButton.addEventListener('click', () => {
           firebase.auth().signOut()
               .then(() => {
@@ -435,40 +472,35 @@ function showUsernameModal() {
                   showError(`Erro ao Deslogar: ${error.message}`);
               });
       });
-  
+
       backToAuthButton.addEventListener('click', () => {
           showAuthContainer();
       });
-  
-  
-  
-      
-  
+
+
+
+
+
   function showError(message) {
           const toastContainer = document.getElementById('toastContainer');
           const toast = document.createElement('div');
           toast.className = 'toast';
           toast.textContent = message;
           toastContainer.appendChild(toast);
-  
+
           setTimeout(() => {
               toastContainer.removeChild(toast);
           }, 3000);
       }
-  
-      const shareCodeFromUrl = window.location.hash.slice(1);
-      if (shareCodeFromUrl) {
-          fetchAndDisplaySharedLinks(shareCodeFromUrl);
-      }
-  
+
     window.onclick = function(event) {
       if (event.target == document.getElementById('usernameModal')) {
         hideUsernameModal();
       }
     }
   });
-  
-      
+
+
   function copyToClipboard(text) {
       navigator.clipboard.writeText(text).then(() => {
           showError('Copied to clipboard!');
@@ -476,77 +508,77 @@ function showUsernameModal() {
           alert(`Error copying link: ${error.message}`);
       });
   }
-  
+
   function showError(message) {
       const toastContainer = document.getElementById('toastContainer');
       const toast = document.createElement('div');
       toast.className = 'toast';
       toast.textContent = message;
       toastContainer.appendChild(toast);
-  
+
       setTimeout(() => {
           toastContainer.removeChild(toast);
       }, 3000);
   }
-  
-  
+
+
   const themes = [
       ['#232526', '#414345'],
-      ['#0f0c29', '#302b63'], 
-      ['#1f4037', '#99f2c8'], 
-      ['#0f0c29', '#302b63'], 
-      ['#2c3e50', '#3498db'], 
+      ['#0f0c29', '#302b63'],
+      ['#1f4037', '#99f2c8'],
+      ['#0f0c29', '#302b63'],
+      ['#2c3e50', '#3498db'],
       ['#667eea', '#764ba2'],
-      ['#4b6cb7', '#182848'], 
-      ['#ee9ca7', '#ffdde1'], 
-      ['#141e30', '#243b55'], 
-      ['#ff7e5f', '#feb47b'], 
-      ['#8360c3', '#2ebf91'], 
-      ['#1a2980', '#26d0ce'], 
-      ['#134e5e', '#71b280'], 
-      ['#ff9966', '#ff5e62'], 
-      ['#56ab2f', '#a8e063'], 
-      ['#7f7fd5', '#86a8e7'], 
-      ['#373b44', '#4286f4'], 
-      ['#000428', '#004e92'], 
-      ['#f953c6', '#b91d73'], 
+      ['#4b6cb7', '#182848'],
+      ['#ee9ca7', '#ffdde1'],
+      ['#141e30', '#243b55'],
+      ['#ff7e5f', '#feb47b'],
+      ['#8360c3', '#2ebf91'],
+      ['#1a2980', '#26d0ce'],
+      ['#134e5e', '#71b280'],
+      ['#ff9966', '#ff5e62'],
+      ['#56ab2f', '#a8e063'],
+      ['#7f7fd5', '#86a8e7'],
+      ['#373b44', '#4286f4'],
+      ['#000428', '#004e92'],
+      ['#f953c6', '#b91d73'],
       ['#43cea2', '#185a9d']
   ];
-  
-  
+
+
   function getRandomDirection() {
-      return '135deg'; 
+      return '135deg';
   }
-  
+
   function getRandomPosition() {
-      return [50, 50]; 
+      return [50, 50];
   }
-  
+
   function changeBackgroundColor() {
-    
+
       addShowClassTemporarily();
-  
+
       const randomTheme = themes[Math.floor(Math.random() * themes.length)];
       const [color1, color2] = randomTheme;
       const direction = getRandomDirection();
       document.body.style.background = `linear-gradient(${direction}, ${color1}, ${color2})`;
-  
-      
+
+
       setTimeout(() => {
           const elements = document.querySelectorAll('*');
           elements.forEach(element => {
               element.classList.remove('show');
               element.classList.add('show2');
           });
-          addShowClassTemporarily(); 
-      }, 500); 
+          addShowClassTemporarily();
+      }, 500);
   }
-  
-  
-  
-  
+
+
+
+
   function changeBackgroundColor2() {
-    
+
       addShowClassTemporarily();
       setTimeout(() => {
           const elements = document.querySelectorAll('*');
@@ -554,16 +586,16 @@ function showUsernameModal() {
               element.classList.remove('show');
               element.classList.add('show2');
           });
-          addShowClassTemporarily(); 
-      }, 500); 
+          addShowClassTemporarily();
+      }, 500);
   }
-  
+
   function addShowClassTemporarily() {
       const elements = document.querySelectorAll('*');
       elements.forEach(element => {
           element.classList.add('show');
       });
-  
+
       setTimeout(() => {
           elements.forEach(element => {
               element.classList.remove('show');
