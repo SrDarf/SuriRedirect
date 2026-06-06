@@ -448,3 +448,27 @@ document.getElementById('saveLinkBtn').addEventListener('click', async () => {
     hideLoading();
   }
 });
+
+async function deleteLink(id) {
+  if (!confirm('Deletar este link?')) return;
+  try {
+    const doc = await db.collection('links').doc(id).get();
+    if (!doc.exists || doc.data().userId !== currentUser.uid) {
+      return showToast('Sem permissão');
+    }
+    await db.collection('links').doc(id).delete();
+    await renderLinks();
+    showToast('Link deletado');
+  } catch (err) {
+    showToast('Erro: ' + err.message);
+  }
+}
+
+async function toggleLink(id, isPublic) {
+  try {
+    await db.collection('links').doc(id).update({ isPublic });
+  } catch (err) {
+    showToast('Erro ao atualizar: ' + err.message);
+    await renderLinks();
+  }
+}
