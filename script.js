@@ -148,7 +148,6 @@ document.getElementById('authButton').addEventListener('click', async (e) => {
     } else {
       const cred = await firebase.auth().signInWithEmailAndPassword(email, password);
       currentUser = cred.user;
-      await onUserLoggedIn();
     }
   } catch (err) {
     const msgs = {
@@ -323,7 +322,6 @@ function handlePublicLinkClick(id, url) { if (url !== '#') window.open(url, '_bl
 function loadPreview() {}
 function loadSettings() {}
 async function loadSidebar() {}
-async function renderLinks() {}
 
 function closeMobileSidebar() {}
 function initMobileNav() {}
@@ -448,6 +446,7 @@ async function renderLinks() {
       const snap2 = await db.collection('links')
         .where('userId', '==', currentUser.uid)
         .get();
+      list.innerHTML = '';
       document.getElementById('linkCount').textContent = snap2.size;
       snap2.forEach(doc => {
         const card = buildLinkCard(doc.id, doc.data());
