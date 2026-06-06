@@ -1,3 +1,12 @@
+function isSafeUrl(raw) {
+    try {
+        const { protocol } = new URL(raw);
+        return protocol === 'http:' || protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
+
 function showUsernameModal() {
     document.getElementById('usernameModal').style.display = 'block';
   }
@@ -209,10 +218,11 @@ function showUsernameModal() {
                   const link = doc.data();
                   const linkItem = document.createElement('div');
                   linkItem.className = 'link-item';
+                  const safeUrl = isSafeUrl(link.url) ? link.url : '#';
                   linkItem.innerHTML = `
-                      <a href="${link.url}" target="_blank">
+                      <a href="${safeUrl}" target="_blank">
                       <img src="${link.imgUrl}" alt="${link.title}" class="link-image"> </a>
-                      <a href="${link.url}" target="_blank">${link.title} <br> <p>${link.descriptionUrl}</p></a>
+                      <a href="${safeUrl}" target="_blank">${link.title} <br> <p>${link.descriptionUrl}</p></a>
 
                       <button class="edit-link" data-id="${doc.id}"><i class="fa-solid fa-edit" style="color:white;" ></i></button>
                       <button class="delete-link delete-link-icon" data-id="${doc.id}"><i class="fa-solid fa-trash"></i></button>
@@ -253,6 +263,11 @@ function showUsernameModal() {
       const url = linkUrlInput.value.trim();
       const img = LinkImageInput.value.trim();
       const description = linkDescription.value;
+
+      if (!isSafeUrl(url)) {
+          showError('URL invalida. Use http:// ou https://');
+          return;
+      }
 
       if (title && url && currentUser) {
           const editId = addLinkButton.getAttribute('data-edit-id');
@@ -332,7 +347,9 @@ function showUsernameModal() {
   });
 
       function generateShareCode(userId) {
-          const shareCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+          const array = new Uint8Array(4);
+          crypto.getRandomValues(array);
+          const shareCode = Array.from(array, b => b.toString(36)).join('').substring(0, 6).toUpperCase();
           const shareUrl = `${window.location.href}#${shareCode}`;
 
           db.collection('users').doc(userId).set({
@@ -435,10 +452,11 @@ function showUsernameModal() {
                       const link = doc.data();
                       const linkItem = document.createElement('div');
                       linkItem.className = 'link-item';
+                      const safeUrl = isSafeUrl(link.url) ? link.url : '#';
                       linkItem.innerHTML = `
-                          <a href="${link.url}"target="_blank">
+                          <a href="${safeUrl}"target="_blank">
                           <img src="${link.imgUrl}" alt="${link.title}" class="link-image imgfix"> </a>
-                          <a href="${link.url}" target="_blank">${link.title} <i class="fa-solid fa-link" onclick="simulateClick()"></i><br> <p>${link.descriptionUrl}</p> </a>
+                          <a href="${safeUrl}" target="_blank">${link.title} <i class="fa-solid fa-link" onclick="simulateClick()"></i><br> <p>${link.descriptionUrl}</p> </a>
 
                       `;
                       sharedLinkList.appendChild(linkItem);
