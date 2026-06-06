@@ -348,6 +348,8 @@ function buildLinkCard(id, data) {
     </div>
   `;
 
+  card.querySelector('input[type="checkbox"]').dataset.id = id;
+
   card.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
     toggleLink(id, e.target.checked);
     card.classList.toggle('inactive', !e.target.checked);
