@@ -13,25 +13,96 @@
 </head>
 <body>
 
+  <div class="stars-bg">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>
+  </div>
   <div id="toastContainer"></div>
   <div id="loadingOverlay"></div>
   <div id="loadingSpinner"></div>
 
   
   <div id="authScreen">
-    <div class="auth-card glass-panel">
-      <div class="auth-logo">
-        <img src="assets/linkicon.png" alt="SuriRedirect" class="auth-logo-img">
-        <span class="auth-logo-text">SuriRedirect</span>
+
+    
+    <div class="auth-split-left">
+      <div class="auth-login-card glass-panel">
+
+        
+        <div class="auth-card-left">
+          <div class="auth-card-brand">
+            <img src="assets/linkicon.png" alt="SuriRedirect" class="auth-logo-img">
+            <span class="auth-logo-text">SuriRedirect</span>
+          </div>
+          <h1 class="auth-headline">Bem-vindo<br>de volta.</h1>
+          <p class="auth-subline">Seus links,<br>sua identidade.</p>
+        </div>
+
+        
+        <div class="auth-card-right">
+          <input type="email" id="emailInput" placeholder="Email" class="glass-input">
+          <input type="password" id="passwordInput" placeholder="Senha" class="glass-input">
+          <button id="authButton" class="btn-primary">Entrar</button>
+          <p id="authToggle" class="auth-toggle">Não tem uma conta? <a href="#" id="authToggleLink">Criar conta</a></p>
+          <div class="divider"><span>ou</span></div>
+          <input type="text" id="shareCodeInput" placeholder="Código de compartilhamento" class="glass-input">
+          <button id="viewSharedLinks" class="btn-secondary">Ver Links Compartilhados</button>
+        </div>
+
       </div>
-      <input type="email" id="emailInput" placeholder="Email" class="glass-input">
-      <input type="password" id="passwordInput" placeholder="Senha" class="glass-input">
-      <button id="authButton" class="btn-primary">Entrar</button>
-      <p id="authToggle" class="auth-toggle">Não tem uma conta? <a href="#" id="authToggleLink">Criar conta</a></p>
-      <div class="divider"><span>ou</span></div>
-      <input type="text" id="shareCodeInput" placeholder="Código de compartilhamento" class="glass-input">
-      <button id="viewSharedLinks" class="btn-secondary">Ver Links Compartilhados</button>
     </div>
+
+    
+    <div class="auth-split-right">
+
+      
+      <div class="deco-card deco-card--profile">
+        <div class="deco-card-top">
+          <div class="deco-avatar">S</div>
+          <div>
+            <div class="deco-name">@suri</div>
+            <div class="deco-bio">Dev · Design · Café</div>
+          </div>
+        </div>
+        <div class="deco-share-row">
+          <span class="deco-share-label">share code</span>
+          <code class="deco-share-value">XK9P2R</code>
+        </div>
+      </div>
+
+      
+      <div class="deco-card deco-card--links">
+        <a class="deco-link-row" href="https://github.com/srdarf" target="_blank" rel="noopener noreferrer">
+          <div class="deco-link-icon"><i class="fa-brands fa-github"></i></div>
+          <div class="deco-link-info">
+            <div class="deco-link-title">GitHub</div>
+            <div class="deco-link-url">github.com/srdarf</div>
+          </div>
+          <span class="deco-clicks">47 <i class="fa-solid fa-arrow-trend-up"></i></span>
+        </a>
+        <a class="deco-link-row" href="https://github.com/srdarf" target="_blank" rel="noopener noreferrer">
+          <div class="deco-link-info">
+            <div class="deco-link-url"></div>
+          </div>
+          <span class="deco-clicks">12</span>
+        </a>
+      </div>
+
+      
+      <div class="deco-card deco-card--theme">
+        <div class="deco-theme-label"><i class="fa-solid fa-palette"></i> Escolha seu tema</div>
+        <div class="deco-theme-swatches">
+          <div class="deco-swatch deco-swatch--active" data-theme-idx="2"  style="background:linear-gradient(135deg,#667eea,#764ba2)"></div>
+          <div class="deco-swatch" data-theme-idx="8"  style="background:linear-gradient(135deg,#b91d73,#f953c6)"></div>
+          <div class="deco-swatch" data-theme-idx="5"  style="background:linear-gradient(135deg,#43cea2,#185a9d)"></div>
+          <div class="deco-swatch" data-theme-idx="16" style="background:linear-gradient(135deg,#1a1a2e,#e94560)"></div>
+          <div class="deco-swatch" data-theme-idx="12" style="background:linear-gradient(135deg,#1a6b3a,#27ae60)"></div>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 
   
@@ -79,6 +150,10 @@
           </div>
         </div>
         <div class="sidebar-actions">
+          <a href="https://github.com/srdarf" target="_blank" rel="noopener noreferrer" class="icon-btn sidebar-social" aria-label="GitHub">
+            <i class="fa-brands fa-github"></i>
+          </a>
+          </a>
           <button id="themePickerBtn" class="icon-btn" aria-label="Abrir seletor de tema">
             <i class="fa-solid fa-palette"></i>
           </button>
@@ -138,10 +213,18 @@
 
   
   <div id="sharedScreen">
-    <div class="shared-content">
-      <div id="sharedHeader" class="shared-header"></div>
-      <div id="sharedLinkList" class="shared-link-list"></div>
-      <button id="backToAuth" class="btn-secondary" style="margin-top:2rem">Voltar</button>
+    <div class="shared-wrapper">
+      <button id="backToAuth" class="shared-back-btn">
+        <i class="fa-solid fa-arrow-left"></i> Voltar
+      </button>
+      <div class="shared-glass">
+        <div id="sharedHeader"></div>
+        <div id="sharedLinkList" class="shared-link-list"></div>
+      </div>
+      <div class="shared-brand">
+        <img src="assets/linkicon.png" alt="" class="auth-logo-img">
+        <span>SuriRedirect</span>
+      </div>
     </div>
   </div>
 
@@ -188,6 +271,16 @@
   <div id="themePicker" class="theme-picker glass-panel">
     <div class="theme-grid" id="themeGrid"></div>
     <button id="resetTheme" class="btn-secondary" style="margin-top:0.75rem;width:100%;font-size:0.8125rem;padding:0.4rem">Padrão (sem tema)</button>
+  </div>
+
+  
+  <div class="credits-widget">
+    <a class="credit-link" href="https://github.com/srdarf" target="_blank" rel="noopener noreferrer">
+      <i class="fa-brands fa-github"></i>
+      <span class="credit-handle">@srdarf</span>
+    </a>
+      <span class="credit-handle"></span>
+    </a>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>

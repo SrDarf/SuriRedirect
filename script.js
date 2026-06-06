@@ -23,14 +23,32 @@ let currentThemeIndex = -1;
 let dragSrcEl = null;
 
 const themes = [
-  ['#232526','#414345'], ['#0f0c29','#302b63'], ['#1f4037','#99f2c8'],
-  ['#0f0c29','#302b63'], ['#2c3e50','#3498db'], ['#667eea','#764ba2'],
-  ['#4b6cb7','#182848'], ['#ee9ca7','#ffdde1'], ['#141e30','#243b55'],
-  ['#ff7e5f','#feb47b'], ['#8360c3','#2ebf91'], ['#1a2980','#26d0ce'],
-  ['#134e5e','#71b280'], ['#ff9966','#ff5e62'], ['#56ab2f','#a8e063'],
-  ['#7f7fd5','#86a8e7'], ['#373b44','#4286f4'], ['#000428','#004e92'],
-  ['#f953c6','#b91d73'], ['#43cea2','#185a9d']
+  ['#0f0c29', '#302b63'],
+  ['#141e30', '#243b55'],
+  ['#667eea', '#764ba2'],
+  ['#4b6cb7', '#182848'],
+  ['#134e5e', '#71b280'],
+  ['#43cea2', '#185a9d'],
+  ['#8360c3', '#2ebf91'],
+  ['#005c97', '#363795'],
+  ['#b91d73', '#f953c6'],
+  ['#6a0572', '#c62a88'],
+  ['#7b241c', '#c0392b'],
+  ['#c0392b', '#e67e22'],
+  ['#1a6b3a', '#27ae60'],
+  ['#0b3d91', '#1a73e8'],
+  ['#2c3e50', '#3498db'],
+  ['#4a0e8f', '#7b1fa2'],
+  ['#1a1a2e', '#e94560'],
+  ['#0d3349', '#1a8a9f'],
+  ['#3d1c32', '#986868'],
+  ['#1b4332', '#52b788'],
 ];
+
+{
+  const saved = parseInt(localStorage.getItem('themeIndex') ?? '-1', 10);
+  if (saved >= 0 && saved < themes.length) applyTheme(saved);
+}
 
 function showToast(msg) {
   const container = document.getElementById('toastContainer');
@@ -53,20 +71,36 @@ function hideLoading() {
 
 function showAuthScreen() {
   document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('authScreen').style.opacity = '';
+  document.getElementById('authScreen').style.transform = '';
   document.getElementById('appShell').classList.remove('visible');
   document.getElementById('sharedScreen').classList.remove('visible');
+  document.body.classList.remove('app-visible');
 }
 
 function showAppShell() {
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('appShell').classList.add('visible');
-  document.getElementById('sharedScreen').classList.remove('visible');
+  const auth = document.getElementById('authScreen');
+  const app  = document.getElementById('appShell');
+  const shared = document.getElementById('sharedScreen');
+
+  shared.classList.remove('visible');
+
+  auth.classList.add('screen-exit');
+
+  setTimeout(() => {
+    auth.style.display = 'none';
+    auth.classList.remove('screen-exit');
+    app.classList.add('visible', 'screen-enter');
+    document.body.classList.add('app-visible');
+    setTimeout(() => app.classList.remove('screen-enter'), 550);
+  }, 380);
 }
 
 function showSharedScreen() {
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('appShell').classList.remove('visible');
   document.getElementById('sharedScreen').classList.add('visible');
+  document.body.classList.remove('app-visible');
 }
 
 function showView(name) {
@@ -130,14 +164,126 @@ document.getElementById('authButton').addEventListener('click', async (e) => {
   }
 });
 
+['emailInput', 'passwordInput'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('authButton').click();
+  });
+});
+
 document.getElementById('authToggleLink').addEventListener('click', (e) => {
   e.preventDefault();
-  isSignUp = !isSignUp;
-  document.getElementById('authButton').textContent = isSignUp ? 'Registrar' : 'Entrar';
-  const toggle = document.getElementById('authToggle');
-  toggle.childNodes[0].textContent = isSignUp ? 'Já tem uma conta? ' : 'Não tem uma conta? ';
-  document.getElementById('authToggleLink').textContent = isSignUp ? 'Entrar' : 'Criar conta';
+  swapAuthSides();
 });
+
+function swapAuthSides() {
+  const screen = document.getElementById('authScreen');
+  if (screen.dataset.swapping) return;
+  screen.dataset.swapping = '1';
+
+  const left  = screen.querySelector('.auth-split-left');
+  const right = screen.querySelector('.auth-split-right');
+
+  const sRect = screen.getBoundingClientRect();
+  const lRect = left.getBoundingClientRect();
+  const rRect = right.getBoundingClientRect();
+
+  const DURATION = 680;
+  const EASE = 'cubic-bezier(0.77, 0, 0.175, 1)';
+
+  [{ el: left, rect: lRect }, { el: right, rect: rRect }].forEach(({ el, rect }) => {
+    el.style.position = 'absolute';
+    el.style.top      = '0';
+    el.style.left     = (rect.left - sRect.left) + 'px';
+    el.style.width    = rect.width + 'px';
+    el.style.height   = '100%';
+    el.style.margin   = '0';
+    el.classList.add('auth-swapping-panel');
+  });
+
+  screen.offsetHeight;
+
+  const [panelAtZero, panelAtFar] =
+    (lRect.left - sRect.left) < 1 ? [left, right] : [right, left];
+  const zeroWidth = (panelAtZero === left ? lRect : rRect).width;
+
+  left.style.transition  = `left ${DURATION}ms ${EASE}`;
+  right.style.transition = `left ${DURATION}ms ${EASE}`;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      panelAtZero.style.left = (sRect.width - zeroWidth) + 'px';
+      panelAtFar.style.left  = '0px';
+    });
+  });
+
+  setTimeout(() => {
+    isSignUp = !isSignUp;
+    const btn = document.getElementById('authButton');
+    const toggleEl = document.getElementById('authToggle');
+    const toggleLink = document.getElementById('authToggleLink');
+    const hl  = document.querySelector('.auth-headline');
+    const sub = document.querySelector('.auth-subline');
+    btn.textContent = isSignUp ? 'Criar conta' : 'Entrar';
+    toggleEl.childNodes[0].textContent = isSignUp ? 'Já tem uma conta? ' : 'Não tem uma conta? ';
+    toggleLink.textContent = isSignUp ? 'Entrar' : 'Criar conta';
+    if (hl)  hl.innerHTML  = isSignUp ? 'Crie sua<br>conta.' : 'Bem-vindo<br>de volta.';
+    if (sub) sub.innerHTML = isSignUp ? 'Rápido<br>e gratuito.' : 'Seus links,<br>sua identidade.';
+
+    const avatar = document.querySelector('.deco-avatar');
+    const decoName = document.querySelector('.deco-name');
+    const decoBio = document.querySelector('.deco-bio');
+    const shareVal = document.querySelector('.deco-share-value');
+    const linkRows = document.querySelectorAll('.deco-link-row');
+
+    if (isSignUp) {
+      if (avatar)   avatar.textContent = '?';
+      if (decoName) decoName.textContent = '@você';
+      if (decoBio)  decoBio.textContent = 'Crie seu perfil único';
+      if (shareVal) shareVal.textContent = '------';
+      if (linkRows[0]) {
+        linkRows[0].querySelector('.deco-link-icon').innerHTML = '<i class="fa-brands fa-youtube"></i>';
+        linkRows[0].querySelector('.deco-link-icon').style.color = '#ff0000';
+        linkRows[0].querySelector('.deco-link-title').textContent = 'YouTube';
+        linkRows[0].querySelector('.deco-link-url').textContent = 'youtube.com/@você';
+        linkRows[0].querySelector('.deco-clicks').innerHTML = '0 <i class="fa-solid fa-arrow-trend-up"></i>';
+      }
+      if (linkRows[1]) {
+        linkRows[1].querySelector('.deco-link-icon').innerHTML = '<i class="fa-brands fa-twitter"></i>';
+        linkRows[1].querySelector('.deco-link-icon').style.color = '#1da1f2';
+        linkRows[1].querySelector('.deco-link-title').textContent = 'Twitter / X';
+        linkRows[1].querySelector('.deco-link-url').textContent = '@você';
+        linkRows[1].querySelector('.deco-clicks').innerHTML = '0';
+      }
+    } else {
+      if (avatar)   avatar.textContent = 'S';
+      if (decoName) decoName.textContent = '@suri';
+      if (decoBio)  decoBio.textContent = 'Dev · Design · Café';
+      if (shareVal) shareVal.textContent = 'XK9P2R';
+      if (linkRows[0]) {
+        linkRows[0].querySelector('.deco-link-icon').innerHTML = '<i class="fa-brands fa-github"></i>';
+        linkRows[0].querySelector('.deco-link-icon').style.color = '';
+        linkRows[0].querySelector('.deco-link-title').textContent = 'GitHub';
+        linkRows[0].querySelector('.deco-link-url').textContent = 'github.com/srdarf';
+        linkRows[0].querySelector('.deco-clicks').innerHTML = '47 <i class="fa-solid fa-arrow-trend-up"></i>';
+      }
+      if (linkRows[1]) {
+        linkRows[1].querySelector('.deco-link-icon').style.color = '#e1306c';
+        linkRows[1].querySelector('.deco-link-url').textContent = '';
+        linkRows[1].querySelector('.deco-clicks').innerHTML = '12';
+      }
+    }
+  }, DURATION / 2);
+
+  setTimeout(() => {
+    const clear = ['position', 'top', 'left', 'width', 'height', 'margin', 'transition'];
+    [left, right].forEach(el => {
+      clear.forEach(p => (el.style[p] = ''));
+      el.classList.remove('auth-swapping-panel');
+    });
+    screen.classList.toggle('auth-sides-swapped');
+    delete screen.dataset.swapping;
+  }, DURATION + 40);
+}
 
 document.getElementById('signOutButton').addEventListener('click', async () => {
   await firebase.auth().signOut();
@@ -178,8 +324,7 @@ function loadPreview() {}
 function loadSettings() {}
 async function loadSidebar() {}
 async function renderLinks() {}
-async function loadTheme() {}
-async function fetchAndDisplaySharedLinks(code) { showSharedScreen(); }
+
 function closeMobileSidebar() {}
 function initMobileNav() {}
 function openPanel(id) {}
@@ -207,6 +352,16 @@ document.getElementById('viewSharedLinks').addEventListener('click', async () =>
 document.getElementById('backToAuth').addEventListener('click', () => {
   window.location.hash = '';
   showAuthScreen();
+  if (!currentUser) applyTheme(-1);
+});
+
+document.getElementById('authScreen').addEventListener('click', (e) => {
+  const swatch = e.target.closest('.deco-swatch[data-theme-idx]');
+  if (!swatch) return;
+  const idx = parseInt(swatch.dataset.themeIdx, 10);
+  triggerThemeTransition(() => applyTheme(idx), idx);
+  document.querySelectorAll('.deco-swatch').forEach(s => s.classList.remove('deco-swatch--active'));
+  swatch.classList.add('deco-swatch--active');
 });
 
 async function loadSidebar() {
@@ -612,20 +767,45 @@ function renderThemePicker() {
 
 function applyTheme(index) {
   const sidebar = document.getElementById('sidebar');
+  const root = document.documentElement;
   currentThemeIndex = index;
   if (index === -1) {
+    document.body.style.background = '';
+    document.body.style.backgroundAttachment = '';
+    document.body.classList.remove('theme-active');
     sidebar.style.background = '';
+    root.style.removeProperty('--auth-left-bg');
+    root.style.removeProperty('--auth-orb1');
+    root.style.removeProperty('--auth-orb2');
   } else {
     const [c1, c2] = themes[index];
-    sidebar.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
+    document.body.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
+    document.body.style.backgroundAttachment = 'fixed';
+    document.body.classList.add('theme-active');
+    sidebar.style.background = 'rgba(0,0,0,0.35)';
+
+    root.style.setProperty('--auth-left-bg', `linear-gradient(155deg, ${c1}38 0%, ${c2}47 100%)`);
+    root.style.setProperty('--auth-orb1', `${c1}4d`);
+    root.style.setProperty('--auth-orb2', `${c2}40`);
   }
+  localStorage.setItem('themeIndex', index);
   document.querySelectorAll('.theme-swatch').forEach((s, i) => {
     s.classList.toggle('active', i === index);
   });
 }
 
+function triggerThemeTransition(applyFn, index) {
+  const bg = (index >= 0 && index < themes.length) ? themes[index][0] : 'rgba(255,255,255,0.15)';
+  const el = document.createElement('div');
+  el.className = 'theme-wipe-anim';
+  el.style.cssText = `position:fixed;top:-20%;left:-20%;width:140%;height:140%;background:${bg};opacity:0.75;z-index:9998;pointer-events:none;`;
+  document.body.appendChild(el);
+  setTimeout(() => applyFn(), 340);
+  setTimeout(() => el.remove(), 800);
+}
+
 async function selectTheme(index) {
-  applyTheme(index);
+  triggerThemeTransition(() => applyTheme(index), index);
   closeThemePicker();
   if (currentUser) {
     try {
@@ -701,11 +881,10 @@ async function loadPreview() {
 }
 
 function buildPublicContent(userData, links) {
-  const wrap = document.createElement('div');
-  wrap.className = 'shared-content';
-
-  const header = document.createElement('div');
-  header.className = 'shared-header';
+  const headerEl = document.getElementById('sharedHeader');
+  const listEl   = document.getElementById('sharedLinkList');
+  headerEl.innerHTML = '';
+  listEl.innerHTML   = '';
 
   let avatarHtml;
   if (userData.photoUrl && isSafeUrl(userData.photoUrl)) {
@@ -713,56 +892,65 @@ function buildPublicContent(userData, links) {
   } else {
     avatarHtml = `<div class="shared-avatar-fallback">${escHtml((userData.username || '?')[0])}</div>`;
   }
-
-  header.innerHTML = `
+  headerEl.innerHTML = `
     ${avatarHtml}
     <div class="shared-username">${escHtml(userData.username || 'Usuário')}</div>
     ${userData.bio ? `<div class="shared-bio">${escHtml(userData.bio)}</div>` : ''}
   `;
-  wrap.appendChild(header);
-
-  const list = document.createElement('div');
-  list.className = 'shared-link-list';
 
   if (links.length === 0) {
-    list.innerHTML = '<p style="color:var(--text-secondary);text-align:center">Nenhum link público</p>';
-  } else {
-    links.forEach(link => {
-      const btn = document.createElement('button');
-      btn.className = 'public-link-card';
-
-      let thumbHtml;
-      if (link.imgUrl && isSafeUrl(link.imgUrl)) {
-        thumbHtml = `<img src="${escHtml(link.imgUrl)}" alt="" class="public-thumb" onerror="this.outerHTML='<div class=\\'public-thumb-placeholder\\'><i class=\\'fa-solid fa-link\\'></i></div>'">`;
-      } else {
-        thumbHtml = `<div class="public-thumb-placeholder"><i class="fa-solid fa-link"></i></div>`;
-      }
-
-      btn.innerHTML = `
-        ${thumbHtml}
-        <div class="public-link-info">
-          <div class="public-link-title">${escHtml(link.title || '')}</div>
-          ${link.descriptionUrl ? `<div class="public-link-desc">${escHtml(link.descriptionUrl)}</div>` : ''}
-        </div>
-        <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--text-tertiary);font-size:0.75rem;flex-shrink:0"></i>
-      `;
-
-      const safeUrl = isSafeUrl(link.url) ? link.url : '#';
-      btn.addEventListener('click', () => handlePublicLinkClick(link.id, safeUrl));
-      list.appendChild(btn);
-    });
+    listEl.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:1rem 0">Nenhum link público</p>';
+    return;
   }
 
-  wrap.appendChild(list);
-  return wrap;
+  const rng = (min, max) => Math.random() * (max - min) + min;
+
+  links.forEach((link, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'public-link-card';
+
+    let thumbHtml;
+    if (link.imgUrl && isSafeUrl(link.imgUrl)) {
+      thumbHtml = `<img src="${escHtml(link.imgUrl)}" alt="" class="public-thumb" onerror="this.outerHTML='<div class=\\'public-thumb-placeholder\\'><i class=\\'fa-solid fa-link\\'></i></div>'">`;
+    } else {
+      thumbHtml = `<div class="public-thumb-placeholder"><i class="fa-solid fa-link"></i></div>`;
+    }
+
+    btn.innerHTML = `
+      ${thumbHtml}
+      <div class="public-link-info">
+        <div class="public-link-title">${escHtml(link.title || '')}</div>
+        ${link.descriptionUrl ? `<div class="public-link-desc">${escHtml(link.descriptionUrl)}</div>` : ''}
+      </div>
+      <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--text-tertiary);font-size:0.75rem;flex-shrink:0"></i>
+    `;
+
+    const safeUrl = isSafeUrl(link.url) ? link.url : '#';
+    btn.addEventListener('click', () => handlePublicLinkClick(link.id, safeUrl));
+
+    const tx  = rng(-55, 55);
+    const ty  = rng(-40, 40);
+    const rot = rng(-9, 9);
+    btn.style.transform = `translate(${tx}px, ${ty}px) rotate(${rot}deg) scale(0.82)`;
+    btn.style.opacity   = '0';
+
+    listEl.appendChild(btn);
+
+    setTimeout(() => {
+      btn.style.transition = 'transform 0.65s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease';
+      btn.style.transform  = '';
+      btn.style.opacity    = '';
+
+      setTimeout(() => { btn.style.transition = ''; }, 700);
+    }, 80 + i * 90);
+  });
 }
 
 async function fetchAndDisplaySharedLinks(shareCode) {
   showSharedScreen();
-  const header = document.getElementById('sharedHeader');
-  const list = document.getElementById('sharedLinkList');
-  header.innerHTML = '<p style="color:var(--text-secondary)">Carregando...</p>';
-  list.innerHTML = '';
+  document.getElementById('sharedHeader').innerHTML =
+    '<p style="color:var(--text-secondary);text-align:center">Carregando...</p>';
+  document.getElementById('sharedLinkList').innerHTML = '';
 
   try {
     const usersSnap = await db.collection('users')
@@ -770,13 +958,16 @@ async function fetchAndDisplaySharedLinks(shareCode) {
       .get();
 
     if (usersSnap.empty) {
-      header.innerHTML = '<p style="color:var(--text-secondary)">Código inválido</p>';
+      document.getElementById('sharedHeader').innerHTML =
+        '<p style="color:var(--text-secondary);text-align:center">Código inválido</p>';
       return;
     }
 
-    const userDoc = usersSnap.docs[0];
+    const userDoc  = usersSnap.docs[0];
     const userData = userDoc.data() || {};
-    const userId = userDoc.id;
+    const userId   = userDoc.id;
+
+    applyTheme(userData.themeIndex ?? -1);
 
     const linksSnap = await db.collection('links')
       .where('userId', '==', userId)
@@ -787,17 +978,11 @@ async function fetchAndDisplaySharedLinks(shareCode) {
       .map(d => ({ id: d.id, ...d.data() }))
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-    header.innerHTML = '';
-    list.innerHTML = '';
-
-    const content = buildPublicContent(userData, links);
-    const innerHeader = content.querySelector('.shared-header');
-    const innerList = content.querySelector('.shared-link-list');
-    if (innerHeader) header.appendChild(innerHeader);
-    if (innerList) list.appendChild(innerList);
+    buildPublicContent(userData, links);
 
   } catch (err) {
-    header.innerHTML = '<p style="color:var(--text-secondary)">Erro ao carregar</p>';
+    document.getElementById('sharedHeader').innerHTML =
+      '<p style="color:var(--text-secondary);text-align:center">Erro ao carregar</p>';
   }
 }
 
