@@ -93,7 +93,7 @@ function generateShareCode(userId) {
   return db.collection('users').doc(userId).set({
     shareCode,
     shareUrl
-  }).then(() => shareCode);
+  }, { merge: true }).then(() => shareCode);
 }
 
 let isSignUp = false;
