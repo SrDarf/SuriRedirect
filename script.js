@@ -208,3 +208,61 @@ document.getElementById('backToAuth').addEventListener('click', () => {
   window.location.hash = '';
   showAuthScreen();
 });
+
+async function loadSidebar() {
+  if (!currentUser) return;
+  try {
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    const data = doc.data() || {};
+
+    document.getElementById('sidebarUsername').textContent = data.username || '—';
+
+    const bioEl = document.getElementById('sidebarBio');
+    bioEl.textContent = data.bio || '';
+
+    const avatarEl = document.getElementById('sidebarAvatar');
+    const fallbackEl = document.getElementById('avatarFallback');
+    if (data.photoUrl && isSafeUrl(data.photoUrl)) {
+      avatarEl.src = data.photoUrl;
+      avatarEl.style.display = 'block';
+      fallbackEl.style.display = 'none';
+      avatarEl.onerror = () => {
+        avatarEl.style.display = 'none';
+        fallbackEl.style.display = 'flex';
+        fallbackEl.textContent = (data.username || '?')[0];
+      };
+    } else {
+      avatarEl.style.display = 'none';
+      fallbackEl.style.display = 'flex';
+      fallbackEl.textContent = (data.username || '?')[0];
+    }
+
+    const shareCode = data.shareCode;
+    if (shareCode) {
+      document.getElementById('sidebarShareCode').textContent = shareCode;
+    } else {
+      const code = await generateShareCode(currentUser.uid);
+      document.getElementById('sidebarShareCode').textContent = code;
+    }
+  } catch (err) {
+    showToast('Erro ao carregar perfil');
+  }
+}
+
+document.getElementById('copyShareCode').addEventListener('click', () => {
+  const code = document.getElementById('sidebarShareCode').textContent;
+  const url = `https://srdarf.github.io/SuriRedirect/#${code}`;
+  navigator.clipboard.writeText(url).then(() => showToast('Link copiado!')).catch(() => showToast('Erro ao copiar'));
+});
+
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const view = btn.dataset.view;
+    if (view === 'add') {
+      openPanel(null);
+      closeMobileSidebar();
+    } else {
+      showView(view);
+    }
+  });
+});
