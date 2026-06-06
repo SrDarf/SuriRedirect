@@ -472,3 +472,72 @@ async function toggleLink(id, isPublic) {
     await renderLinks();
   }
 }
+
+function initDragAndDrop() {
+  const list = document.getElementById('linkList');
+  const cards = list.querySelectorAll('.link-card');
+
+  cards.forEach(card => {
+    card.addEventListener('dragstart', handleDragStart);
+    card.addEventListener('dragover', handleDragOver);
+    card.addEventListener('dragleave', handleDragLeave);
+    card.addEventListener('drop', handleDrop);
+    card.addEventListener('dragend', handleDragEnd);
+  });
+}
+
+function handleDragStart(e) {
+  dragSrcEl = this;
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', this.dataset.id);
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (this !== dragSrcEl) this.classList.add('drag-over');
+}
+
+function handleDragLeave() {
+  this.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  if (this === dragSrcEl) return;
+
+  this.classList.remove('drag-over');
+  const list = document.getElementById('linkList');
+  const cards = [...list.querySelectorAll('.link-card')];
+  const srcIdx = cards.indexOf(dragSrcEl);
+  const dstIdx = cards.indexOf(this);
+
+  if (srcIdx < dstIdx) {
+    list.insertBefore(dragSrcEl, this.nextSibling);
+  } else {
+    list.insertBefore(dragSrcEl, this);
+  }
+
+  saveOrder();
+}
+
+function handleDragEnd() {
+  this.classList.remove('dragging');
+  document.querySelectorAll('.link-card').forEach(c => c.classList.remove('drag-over'));
+  dragSrcEl = null;
+}
+
+async function saveOrder() {
+  const cards = document.querySelectorAll('#linkList .link-card');
+  const batch = db.batch();
+  cards.forEach((card, i) => {
+    const ref = db.collection('links').doc(card.dataset.id);
+    batch.update(ref, { order: i + 1 });
+  });
+  try {
+    await batch.commit();
+  } catch (err) {
+    showToast('Erro ao salvar ordem');
+  }
+}
