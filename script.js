@@ -364,3 +364,87 @@ function buildLinkCard(id, data) {
 function escHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+function openPanel(linkId) {
+  editingLinkId = linkId;
+  const panel = document.getElementById('slidePanel');
+  const overlay = document.getElementById('panelOverlay');
+  const title = document.getElementById('panelTitle');
+
+  document.getElementById('linkTitleInput').value = '';
+  document.getElementById('linkUrlInput').value = '';
+  document.getElementById('linkDescInput').value = '';
+  document.getElementById('linkImageInput').value = '';
+
+  if (linkId) {
+    title.textContent = 'Editar Link';
+    db.collection('links').doc(linkId).get().then(doc => {
+      if (!doc.exists) return;
+      const d = doc.data();
+      document.getElementById('linkTitleInput').value = d.title || '';
+      document.getElementById('linkUrlInput').value = d.url || '';
+      document.getElementById('linkDescInput').value = d.descriptionUrl || '';
+      document.getElementById('linkImageInput').value = d.imgUrl || '';
+    });
+  } else {
+    title.textContent = 'Adicionar Link';
+  }
+
+  panel.classList.add('open');
+  overlay.classList.add('visible');
+}
+
+function closePanel() {
+  document.getElementById('slidePanel').classList.remove('open');
+  document.getElementById('panelOverlay').classList.remove('visible');
+  editingLinkId = null;
+}
+
+document.getElementById('closePanel').addEventListener('click', closePanel);
+document.getElementById('panelOverlay').addEventListener('click', closePanel);
+
+document.getElementById('saveLinkBtn').addEventListener('click', async () => {
+  const title = document.getElementById('linkTitleInput').value.trim();
+  const url = document.getElementById('linkUrlInput').value.trim();
+  const desc = document.getElementById('linkDescInput').value.trim();
+  const img = document.getElementById('linkImageInput').value.trim();
+
+  if (!title) return showToast('Título obrigatório');
+  if (!url) return showToast('URL obrigatória');
+  if (!isSafeUrl(url)) return showToast('URL inválida. Use http:// ou https://');
+  if (img && !isSafeUrl(img)) return showToast('URL de imagem inválida');
+
+  showLoading();
+  try {
+    if (editingLinkId) {
+      const doc = await db.collection('links').doc(editingLinkId).get();
+      if (!doc.exists || doc.data().userId !== currentUser.uid) {
+        return showToast('Sem permissão');
+      }
+      await db.collection('links').doc(editingLinkId).update({
+        title, url, descriptionUrl: desc, imgUrl: img
+      });
+    } else {
+      const snap = await db.collection('links')
+        .where('userId', '==', currentUser.uid)
+        .get();
+      const maxOrder = snap.docs.reduce((m, d) => Math.max(m, d.data().order || 0), 0);
+
+      await db.collection('links').add({
+        title, url, descriptionUrl: desc, imgUrl: img,
+        userId: currentUser.uid,
+        isPublic: true,
+        order: maxOrder + 1,
+        clickCount: 0
+      });
+    }
+    const wasEditing = editingLinkId;
+    closePanel();
+    await renderLinks();
+    showToast(wasEditing ? 'Link atualizado!' : 'Link adicionado!');
+  } catch (err) {
+    showToast('Erro: ' + err.message);
+  } finally {
+    hideLoading();
+  }
+});
