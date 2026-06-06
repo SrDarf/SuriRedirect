@@ -135,6 +135,26 @@ body.theme-active #mainContent {
   animation: themeWipe 0.75s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+@keyframes siteReveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(28px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+.deco-card {
+  opacity: 0;
+  transition: opacity 0.55s ease;
+  animation-play-state: paused;
+}
+.deco-card.deco-visible {
+  opacity: 1;
+  animation-play-state: running;
+}
+
 #authScreen {
   display: flex;
   align-items: stretch;
@@ -143,6 +163,7 @@ body.theme-active #mainContent {
   background: linear-gradient(140deg, rgba(102,126,234,0.11) 0%, rgba(118,75,162,0.18) 100%);
   position: relative;
   overflow: hidden;
+  animation: siteReveal 0.65s cubic-bezier(0, 0, 0.2, 1) both;
 }
 
 .auth-sides-swapped .auth-split-left { order: 2; }
@@ -642,7 +663,9 @@ body.theme-active #mainContent {
     0 24px 64px rgba(0,0,0,0.45),
     0 0 0 1px rgba(255,255,255,0.07),
     0 0 100px rgba(102,126,234,0.12);
-  animation: loginFloat 6.5s ease-in-out infinite;
+  animation:
+    cardReveal 0.7s cubic-bezier(0, 0, 0.2, 1) 0.2s both,
+    loginFloat 6.5s ease-in-out 0.9s infinite;
 }
 
 .auth-card-left {

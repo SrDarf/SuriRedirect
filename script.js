@@ -1012,3 +1012,16 @@ function initMobileNav() {
   document.getElementById('hamburger').addEventListener('click', openMobileSidebar);
   document.getElementById('mobileOverlay').addEventListener('click', closeMobileSidebar);
 }
+
+(function () {
+
+  const decos = document.querySelectorAll('.deco-card');
+  decos.forEach((card, i) => {
+    setTimeout(() => card.classList.add('deco-visible'), 620 + i * 140);
+  });
+
+  const authScreen = document.getElementById('authScreen');
+  authScreen.addEventListener('animationend', (e) => {
+    if (e.animationName === 'siteReveal') authScreen.style.animation = 'none';
+  }, { once: true });
+})();
