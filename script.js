@@ -541,3 +541,122 @@ async function saveOrder() {
     showToast('Erro ao salvar ordem');
   }
 }
+
+async function loadSettings() {
+  if (!currentUser) return;
+  try {
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    const data = doc.data() || {};
+    document.getElementById('settingsUsername').value = data.username || '';
+    document.getElementById('settingsPhotoUrl').value = data.photoUrl || '';
+    document.getElementById('settingsBio').value = data.bio || '';
+    updateBioCount(data.bio || '');
+  } catch (err) {
+    showToast('Erro ao carregar configurações');
+  }
+}
+
+function updateBioCount(val) {
+  document.getElementById('bioCharCount').textContent = `${val.length}/160`;
+}
+
+document.getElementById('settingsBio').addEventListener('input', (e) => {
+  updateBioCount(e.target.value);
+});
+
+document.getElementById('settingsThemeBtn').addEventListener('click', () => {
+  if (typeof openThemePicker === 'function') openThemePicker();
+});
+
+document.getElementById('saveSettings').addEventListener('click', async () => {
+  const username = document.getElementById('settingsUsername').value.trim();
+  const photoUrl = document.getElementById('settingsPhotoUrl').value.trim();
+  const bio = document.getElementById('settingsBio').value.trim();
+
+  if (username.length < 3) return showToast('Usuário: mínimo 3 caracteres');
+  if (photoUrl && !isSafeUrl(photoUrl)) return showToast('URL de foto inválida');
+  if (bio.length > 160) return showToast('Bio: máximo 160 caracteres');
+
+  showLoading();
+  try {
+    await db.collection('users').doc(currentUser.uid).update({ username, photoUrl, bio });
+    await loadSidebar();
+    showToast('Salvo!');
+  } catch (err) {
+    showToast('Erro: ' + err.message);
+  } finally {
+    hideLoading();
+  }
+});
+
+function renderThemePicker() {
+  const grid = document.getElementById('themeGrid');
+  grid.innerHTML = '';
+  themes.forEach((pair, i) => {
+    const swatch = document.createElement('button');
+    swatch.className = 'theme-swatch' + (i === currentThemeIndex ? ' active' : '');
+    swatch.style.background = `linear-gradient(135deg, ${pair[0]}, ${pair[1]})`;
+    swatch.title = `Tema ${i + 1}`;
+    swatch.addEventListener('click', () => selectTheme(i));
+    grid.appendChild(swatch);
+  });
+}
+
+function applyTheme(index) {
+  const sidebar = document.getElementById('sidebar');
+  currentThemeIndex = index;
+  if (index === -1) {
+    sidebar.style.background = '';
+  } else {
+    const [c1, c2] = themes[index];
+    sidebar.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
+  }
+  document.querySelectorAll('.theme-swatch').forEach((s, i) => {
+    s.classList.toggle('active', i === index);
+  });
+}
+
+async function selectTheme(index) {
+  applyTheme(index);
+  closeThemePicker();
+  if (currentUser) {
+    try {
+      await db.collection('users').doc(currentUser.uid).update({ themeIndex: index });
+    } catch (err) {
+      showToast('Erro ao salvar tema');
+    }
+  }
+}
+
+async function loadTheme() {
+  if (!currentUser) return;
+  try {
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    const idx = doc.data()?.themeIndex ?? -1;
+    applyTheme(idx);
+  } catch (_) {}
+}
+
+function openThemePicker() {
+  renderThemePicker();
+  document.getElementById('themePicker').classList.add('open');
+}
+
+function closeThemePicker() {
+  document.getElementById('themePicker').classList.remove('open');
+}
+
+document.getElementById('themePickerBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const picker = document.getElementById('themePicker');
+  picker.classList.contains('open') ? closeThemePicker() : openThemePicker();
+});
+
+document.getElementById('resetTheme').addEventListener('click', () => selectTheme(-1));
+
+document.addEventListener('click', (e) => {
+  const picker = document.getElementById('themePicker');
+  if (picker.classList.contains('open') && !picker.contains(e.target) && e.target.id !== 'themePickerBtn') {
+    closeThemePicker();
+  }
+});
