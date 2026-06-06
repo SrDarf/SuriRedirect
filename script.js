@@ -660,3 +660,129 @@ document.addEventListener('click', (e) => {
     closeThemePicker();
   }
 });
+
+async function loadPreview() {
+  if (!currentUser) return;
+  const container = document.getElementById('previewContainer');
+  container.innerHTML = '<p style="color:var(--text-secondary)">Carregando...</p>';
+
+  try {
+    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+    const userData = userDoc.data() || {};
+
+    const linksSnap = await db.collection('links')
+      .where('userId', '==', currentUser.uid)
+      .where('isPublic', '==', true)
+      .get();
+
+    const links = linksSnap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    container.innerHTML = '';
+    container.appendChild(buildPublicContent(userData, links));
+  } catch (err) {
+    container.innerHTML = '<p style="color:var(--text-secondary)">Erro ao carregar preview</p>';
+  }
+}
+
+function buildPublicContent(userData, links) {
+  const wrap = document.createElement('div');
+  wrap.className = 'shared-content';
+
+  const header = document.createElement('div');
+  header.className = 'shared-header';
+
+  let avatarHtml;
+  if (userData.photoUrl && isSafeUrl(userData.photoUrl)) {
+    avatarHtml = `<img src="${escHtml(userData.photoUrl)}" alt="" class="shared-avatar" onerror="this.outerHTML='<div class=\\'shared-avatar-fallback\\'>${escHtml((userData.username||'?')[0])}</div>'">`;
+  } else {
+    avatarHtml = `<div class="shared-avatar-fallback">${escHtml((userData.username || '?')[0])}</div>`;
+  }
+
+  header.innerHTML = `
+    ${avatarHtml}
+    <div class="shared-username">${escHtml(userData.username || 'Usuário')}</div>
+    ${userData.bio ? `<div class="shared-bio">${escHtml(userData.bio)}</div>` : ''}
+  `;
+  wrap.appendChild(header);
+
+  const list = document.createElement('div');
+  list.className = 'shared-link-list';
+
+  if (links.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-secondary);text-align:center">Nenhum link público</p>';
+  } else {
+    links.forEach(link => {
+      const btn = document.createElement('button');
+      btn.className = 'public-link-card';
+
+      let thumbHtml;
+      if (link.imgUrl && isSafeUrl(link.imgUrl)) {
+        thumbHtml = `<img src="${escHtml(link.imgUrl)}" alt="" class="public-thumb" onerror="this.outerHTML='<div class=\\'public-thumb-placeholder\\'><i class=\\'fa-solid fa-link\\'></i></div>'">`;
+      } else {
+        thumbHtml = `<div class="public-thumb-placeholder"><i class="fa-solid fa-link"></i></div>`;
+      }
+
+      btn.innerHTML = `
+        ${thumbHtml}
+        <div class="public-link-info">
+          <div class="public-link-title">${escHtml(link.title || '')}</div>
+          ${link.descriptionUrl ? `<div class="public-link-desc">${escHtml(link.descriptionUrl)}</div>` : ''}
+        </div>
+        <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--text-tertiary);font-size:0.75rem;flex-shrink:0"></i>
+      `;
+
+      const safeUrl = isSafeUrl(link.url) ? link.url : '#';
+      btn.addEventListener('click', () => handlePublicLinkClick(link.id, safeUrl));
+      list.appendChild(btn);
+    });
+  }
+
+  wrap.appendChild(list);
+  return wrap;
+}
+
+async function fetchAndDisplaySharedLinks(shareCode) {
+  showSharedScreen();
+  const header = document.getElementById('sharedHeader');
+  const list = document.getElementById('sharedLinkList');
+  header.innerHTML = '<p style="color:var(--text-secondary)">Carregando...</p>';
+  list.innerHTML = '';
+
+  try {
+    const usersSnap = await db.collection('users')
+      .where('shareCode', '==', shareCode.toUpperCase())
+      .get();
+
+    if (usersSnap.empty) {
+      header.innerHTML = '<p style="color:var(--text-secondary)">Código inválido</p>';
+      return;
+    }
+
+    const userDoc = usersSnap.docs[0];
+    const userData = userDoc.data() || {};
+    const userId = userDoc.id;
+
+    const linksSnap = await db.collection('links')
+      .where('userId', '==', userId)
+      .where('isPublic', '==', true)
+      .get();
+
+    const links = linksSnap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    header.innerHTML = '';
+    list.innerHTML = '';
+
+    const content = buildPublicContent(userData, links);
+    const innerHeader = content.querySelector('.shared-header');
+    const innerList = content.querySelector('.shared-link-list');
+    if (innerHeader) header.appendChild(innerHeader);
+    if (innerList) list.appendChild(innerList);
+
+  } catch (err) {
+    header.innerHTML = '<p style="color:var(--text-secondary)">Erro ao carregar</p>';
+  }
+}
