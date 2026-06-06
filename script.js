@@ -786,3 +786,30 @@ async function fetchAndDisplaySharedLinks(shareCode) {
     header.innerHTML = '<p style="color:var(--text-secondary)">Erro ao carregar</p>';
   }
 }
+
+async function handlePublicLinkClick(linkId, url) {
+  if (url === '#') return;
+  try {
+    await db.collection('links').doc(linkId).update({
+      clickCount: firebase.firestore.FieldValue.increment(1)
+    });
+  } catch (_) {
+
+  }
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+function openMobileSidebar() {
+  document.getElementById('sidebar').classList.add('mobile-open');
+  document.getElementById('mobileOverlay').classList.add('visible');
+}
+
+function closeMobileSidebar() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('mobileOverlay').classList.remove('visible');
+}
+
+function initMobileNav() {
+  document.getElementById('hamburger').addEventListener('click', openMobileSidebar);
+  document.getElementById('mobileOverlay').addEventListener('click', closeMobileSidebar);
+}
