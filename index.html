@@ -1,104 +1,196 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SuriRedirector</title>
-    <script src="https://kit.fontawesome.com/bef417f226.js" crossorigin="anonymous"></script>
-    <link rel="icon" href="assets/linkicon.png">
-    <link rel="stylesheet" href="stars.css">
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SuriRedirect</title>
+  <link rel="icon" href="assets/linkicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/bef417f226.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body id="body">
-    <div class="stars-bg">
-        <div id="stars"></div>
-        <div id="stars2"></div>
-        <div id="stars3"></div>
+<body>
+
+  <div id="toastContainer"></div>
+  <div id="loadingOverlay"></div>
+  <div id="loadingSpinner"></div>
+
+  
+  <div id="authScreen">
+    <div class="auth-card glass-panel">
+      <div class="auth-logo">
+        <img src="assets/linkicon.png" alt="" class="auth-logo-img">
+        <span class="auth-logo-text">SuriRedirect</span>
+      </div>
+      <input type="email" id="emailInput" placeholder="Email" class="glass-input">
+      <input type="password" id="passwordInput" placeholder="Senha" class="glass-input">
+      <button id="authButton" class="btn-primary">Entrar</button>
+      <p id="authToggle" class="auth-toggle">Não tem uma conta? <a href="#" id="authToggleLink">Criar conta</a></p>
+      <div class="divider"><span>ou</span></div>
+      <input type="text" id="shareCodeInput" placeholder="Código de compartilhamento" class="glass-input">
+      <button id="viewSharedLinks" class="btn-secondary">Ver Links Compartilhados</button>
     </div>
+  </div>
 
-    <div id="usernameModal" class="modal">
-        <div class="modal-content glass-panel">
-          <h2>Escolha o seu Apelido</h2>
-          <input type="text" id="usernameInput" placeholder="Ex: Suri" class="glass-input">
-          <button id="setUsernameButton" class="glass-button">Definir Apelido</button>
+  
+  <div id="appShell">
+    <button id="hamburger" class="hamburger" aria-label="Menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div id="mobileOverlay" class="mobile-overlay"></div>
+
+    <aside id="sidebar">
+      <div class="sidebar-profile">
+        <div class="avatar-wrap">
+          <img id="sidebarAvatar" src="" alt="" class="avatar">
+          <div id="avatarFallback" class="avatar-fallback"></div>
         </div>
+        <div class="profile-info">
+          <span id="sidebarUsername" class="profile-name">—</span>
+          <span id="sidebarBio" class="profile-bio"></span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-view="links">
+          <i class="fa-solid fa-link"></i><span>Meus Links</span>
+        </button>
+        <button class="nav-item" data-view="add">
+          <i class="fa-solid fa-plus"></i><span>Adicionar Link</span>
+        </button>
+        <button class="nav-item" data-view="preview">
+          <i class="fa-solid fa-eye"></i><span>Preview Público</span>
+        </button>
+        <button class="nav-item" data-view="settings">
+          <i class="fa-solid fa-gear"></i><span>Configurações</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="share-code-block">
+          <span class="share-label">Share code</span>
+          <div class="share-row">
+            <code id="sidebarShareCode" class="share-code-text">—</code>
+            <button id="copyShareCode" class="icon-btn" title="Copiar link">
+              <i class="fa-solid fa-link"></i>
+            </button>
+          </div>
+        </div>
+        <div class="sidebar-actions">
+          <button id="themePickerBtn" class="icon-btn" title="Tema">
+            <i class="fa-solid fa-palette"></i>
+          </button>
+          <button id="signOutButton" class="icon-btn" title="Sair">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="themePicker" class="theme-picker glass-panel">
+        <div class="theme-grid" id="themeGrid"></div>
+        <button id="resetTheme" class="btn-secondary" style="margin-top:0.75rem;width:100%;font-size:0.8125rem;padding:0.4rem">Padrão (sem tema)</button>
+      </div>
+    </aside>
+
+    <main id="mainContent">
+      <section id="linksView" class="view active">
+        <div class="view-header">
+          <h1 class="view-title">Meus Links</h1>
+          <span id="linkCount" class="badge">0</span>
+        </div>
+        <div id="linkList" class="link-list"></div>
+      </section>
+
+      <section id="settingsView" class="view">
+        <div class="view-header">
+          <h1 class="view-title">Configurações</h1>
+        </div>
+        <div class="settings-form glass-panel">
+          <div class="field-group">
+            <label class="field-label">Nome de usuário</label>
+            <input type="text" id="settingsUsername" class="glass-input" placeholder="Mínimo 3 caracteres">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Foto de perfil (URL)</label>
+            <input type="url" id="settingsPhotoUrl" class="glass-input" placeholder="https://...">
+          </div>
+          <div class="field-group">
+            <label class="field-label">
+              Bio
+              <span id="bioCharCount" class="char-count">0/160</span>
+            </label>
+            <textarea id="settingsBio" class="glass-input" rows="3" placeholder="Uma frase sobre você..." maxlength="160"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Tema</label>
+            <button id="settingsThemeBtn" class="btn-secondary" style="width:auto;padding:0.5rem 1rem">Abrir seletor de tema</button>
+          </div>
+          <button id="saveSettings" class="btn-primary">Salvar</button>
+        </div>
+      </section>
+
+      <section id="previewView" class="view">
+        <div class="view-header">
+          <h1 class="view-title">Preview Público</h1>
+        </div>
+        <div id="previewContainer" class="shared-content"></div>
+      </section>
+    </main>
+  </div>
+
+  
+  <div id="sharedScreen">
+    <div class="shared-content">
+      <div id="sharedHeader" class="shared-header"></div>
+      <div id="sharedLinkList" class="shared-link-list"></div>
+      <button id="backToAuth" class="btn-secondary" style="margin-top:2rem">Voltar</button>
     </div>
+  </div>
 
-    <div id="toastContainer"></div>
-
-    <div class="loading-overlay" id="loadingOverlay" style="display:none; "></div>
-
-    <div class="loading-spinner" id="loadingSpinner" style="display:none;"></div>
-
-    <div class="starmode" onclick="changeBackgroundColor()">
-        <i class="fa-solid fa-palette"></i>
+  
+  <div id="panelOverlay" class="panel-overlay"></div>
+  <div id="slidePanel" class="slide-panel">
+    <div class="panel-header">
+      <h2 id="panelTitle" class="panel-title">Adicionar Link</h2>
+      <button id="closePanel" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
     </div>
-
-    <div class="star" onclick="toggleStarsBg();">
-        <i class="fa-solid fa-star"></i>
+    <div class="panel-body">
+      <div class="field-group">
+        <label class="field-label">Título *</label>
+        <input type="text" id="linkTitleInput" class="glass-input" placeholder="Meu site">
+      </div>
+      <div class="field-group">
+        <label class="field-label">URL *</label>
+        <input type="url" id="linkUrlInput" class="glass-input" placeholder="https://...">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Descrição</label>
+        <textarea id="linkDescInput" class="glass-input" rows="2" placeholder="Opcional"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Imagem (URL)</label>
+        <input type="url" id="linkImageInput" class="glass-input" placeholder="https://...">
+      </div>
     </div>
-    
-
-    <div id="background"></div>
-
-    
-
-    <div class="container">
-        <h1>SuriRedirect</h1>
-        <div id="authContainer" class="glass-panel">
-            <input type="email" id="emailInput" placeholder="Email" class="glass-input">
-            <input type="password" id="passwordInput" placeholder="Password" class="glass-input">
-            <button id="authButton" class="glass-button">Entrar</button>
-            <p id="authToggle">Não tem uma conta? <a href="#" id="authToggleLink">Criar conta</a></p>
-            <div class="divider">ou</div>
-            <input type="text" id="shareCodeInput" placeholder="Colocar Codigo de Link" class="glass-input">
-            <button id="viewSharedLinks" class="glass-button">Ver Link Compartilhado</button>
-        </div>
-        <div id="linkContainer" class="glass-panel" style="display: none;">
-            <div class="link-form">
-                <input type="text" id="linkTitle" placeholder="Link Title" class="glass-input">
-                <textarea id="linkDescription" placeholder="Link Description" class="glass-input"></textarea>
-                <input type="url" id="linkUrl" placeholder="https://example.com" class="glass-input">
-                <input type="url" id="linkImageUrl" placeholder="Image URL" class="glass-input">
-                <button id="addLink" class="glass-button">Adicionar Link</button>
-            </div>
-            <div id="linkList" class="link-list"></div>
-            <div id="shareCodeDisplay" class="share-code"></div>
-            <button id="signOutButton" class="glass-button">Deslogar</button>
-
-        </div>
-        <div id="sharedLinksContainer" class="glass-panel" style="display: none;">
-            <h2 id="sharedLinksTitle" class="shared-links-title"></h2>
-            <div id="sharedLinkList" class="link-list"></div>
-            <button id="backToAuth" class="glass-button">Voltar</button>
-        </div>
+    <div class="panel-footer">
+      <button id="saveLinkBtn" class="btn-primary">Salvar</button>
     </div>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    
-    <script src="script.js"></script>
+  </div>
 
-<footer id="footer" >
-        <div class="footer-content">
-            <div class="footer-links">
-              <a href="https://github.com/srdarf" target="_blank" aria-label="GitHub">
-                <i class="fab fa-github"></i>
-              </a>
-            </div>
-        </div>
-</footer>
+  
+  <div id="usernameModal" class="modal">
+    <div class="modal-content glass-panel">
+      <h2>Escolha seu apelido</h2>
+      <input type="text" id="usernameInput" class="glass-input" placeholder="Ex: Suri">
+      <button id="setUsernameButton" class="btn-primary">Confirmar</button>
+    </div>
+  </div>
 
-<script>
-    function toggleStarsBg() {
-        const starsBg = document.querySelector('.stars-bg');
-        if (starsBg) {
-            starsBg.classList.toggle('hidden');
-        }
-    }
-</script>
-    
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
