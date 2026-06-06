@@ -266,3 +266,99 @@ document.querySelectorAll('.nav-item').forEach(btn => {
     }
   });
 });
+
+async function renderLinks() {
+  if (!currentUser) return;
+  const list = document.getElementById('linkList');
+  list.innerHTML = '';
+
+  try {
+    const snap = await db.collection('links')
+      .where('userId', '==', currentUser.uid)
+      .orderBy('order', 'asc')
+      .get();
+
+    const docs = snap.empty ? [] : snap.docs;
+
+    document.getElementById('linkCount').textContent = docs.length;
+
+    docs.forEach(doc => {
+      const card = buildLinkCard(doc.id, doc.data());
+      list.appendChild(card);
+    });
+
+    initDragAndDrop();
+  } catch (err) {
+    try {
+      const snap2 = await db.collection('links')
+        .where('userId', '==', currentUser.uid)
+        .get();
+      document.getElementById('linkCount').textContent = snap2.size;
+      snap2.forEach(doc => {
+        const card = buildLinkCard(doc.id, doc.data());
+        list.appendChild(card);
+      });
+      initDragAndDrop();
+    } catch (err2) {
+      showToast('Erro ao carregar links');
+    }
+  }
+}
+
+function buildLinkCard(id, data) {
+  const card = document.createElement('div');
+  card.className = 'link-card' + (data.isPublic === false ? ' inactive' : '');
+  card.dataset.id = id;
+  card.draggable = true;
+
+  let thumbHtml;
+  if (data.imgUrl && isSafeUrl(data.imgUrl)) {
+    thumbHtml = `<img src="${data.imgUrl}" alt="" class="link-thumb" onerror="this.outerHTML='<div class=\\'link-thumb-placeholder\\'><i class=\\'fa-solid fa-link\\'></i></div>'">`;
+  } else {
+    thumbHtml = `<div class="link-thumb-placeholder"><i class="fa-solid fa-link"></i></div>`;
+  }
+
+  const clicks = data.clickCount || 0;
+  const clickBadge = clicks > 0 ? `<span class="click-badge">↗ ${clicks}</span>` : '';
+
+  const safeUrl = isSafeUrl(data.url) ? data.url : '#';
+
+  card.innerHTML = `
+    <span class="drag-handle">⠿</span>
+    ${thumbHtml}
+    <div class="link-info">
+      <div class="link-title">${escHtml(data.title || '')}</div>
+      ${data.descriptionUrl ? `<div class="link-desc">${escHtml(data.descriptionUrl)}</div>` : ''}
+      <div class="link-url">${escHtml(safeUrl)}</div>
+    </div>
+    <div class="link-meta">
+      ${clickBadge}
+      <label class="toggle" title="${data.isPublic === false ? 'Ativar' : 'Desativar'}">
+        <input type="checkbox" ${data.isPublic !== false ? 'checked' : ''} data-id="${id}">
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+    <div class="link-actions">
+      <button class="icon-btn edit-btn" data-id="${id}" title="Editar">
+        <i class="fa-solid fa-pen"></i>
+      </button>
+      <button class="icon-btn danger delete-btn" data-id="${id}" title="Deletar">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+  `;
+
+  card.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
+    toggleLink(id, e.target.checked);
+    card.classList.toggle('inactive', !e.target.checked);
+  });
+
+  card.querySelector('.edit-btn').addEventListener('click', () => openPanel(id));
+  card.querySelector('.delete-btn').addEventListener('click', () => deleteLink(id));
+
+  return card;
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
