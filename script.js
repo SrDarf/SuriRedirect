@@ -564,8 +564,16 @@ document.getElementById('settingsBio').addEventListener('input', (e) => {
   updateBioCount(e.target.value);
 });
 
-document.getElementById('settingsThemeBtn').addEventListener('click', () => {
-  if (typeof openThemePicker === 'function') openThemePicker();
+document.getElementById('settingsThemeBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const picker = document.getElementById('themePicker');
+  if (picker.classList.contains('open')) { closeThemePicker(); return; }
+  renderThemePicker();
+  const rect = e.currentTarget.getBoundingClientRect();
+  picker.style.left = rect.left + 'px';
+  picker.style.top = (rect.bottom + 8) + 'px';
+  picker.style.bottom = 'auto';
+  picker.classList.add('open');
 });
 
 document.getElementById('saveSettings').addEventListener('click', async () => {
@@ -639,7 +647,13 @@ async function loadTheme() {
 
 function openThemePicker() {
   renderThemePicker();
-  document.getElementById('themePicker').classList.add('open');
+  const picker = document.getElementById('themePicker');
+  const btn = document.getElementById('themePickerBtn');
+  const rect = btn.getBoundingClientRect();
+  picker.style.left = rect.left + 'px';
+  picker.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+  picker.style.top = 'auto';
+  picker.classList.add('open');
 }
 
 function closeThemePicker() {
