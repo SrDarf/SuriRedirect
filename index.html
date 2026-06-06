@@ -21,7 +21,7 @@
   <div id="authScreen">
     <div class="auth-card glass-panel">
       <div class="auth-logo">
-        <img src="assets/linkicon.png" alt="" class="auth-logo-img">
+        <img src="assets/linkicon.png" alt="SuriRedirect" class="auth-logo-img">
         <span class="auth-logo-text">SuriRedirect</span>
       </div>
       <input type="email" id="emailInput" placeholder="Email" class="glass-input">
@@ -73,16 +73,16 @@
           <span class="share-label">Share code</span>
           <div class="share-row">
             <code id="sidebarShareCode" class="share-code-text">—</code>
-            <button id="copyShareCode" class="icon-btn" title="Copiar link">
+            <button id="copyShareCode" class="icon-btn" aria-label="Copiar link de compartilhamento">
               <i class="fa-solid fa-link"></i>
             </button>
           </div>
         </div>
         <div class="sidebar-actions">
-          <button id="themePickerBtn" class="icon-btn" title="Tema">
+          <button id="themePickerBtn" class="icon-btn" aria-label="Abrir seletor de tema">
             <i class="fa-solid fa-palette"></i>
           </button>
-          <button id="signOutButton" class="icon-btn" title="Sair">
+          <button id="signOutButton" class="icon-btn" aria-label="Sair">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
           </button>
         </div>
@@ -109,15 +109,15 @@
         </div>
         <div class="settings-form glass-panel">
           <div class="field-group">
-            <label class="field-label">Nome de usuário</label>
+            <label class="field-label" for="settingsUsername">Nome de usuário</label>
             <input type="text" id="settingsUsername" class="glass-input" placeholder="Mínimo 3 caracteres">
           </div>
           <div class="field-group">
-            <label class="field-label">Foto de perfil (URL)</label>
+            <label class="field-label" for="settingsPhotoUrl">Foto de perfil (URL)</label>
             <input type="url" id="settingsPhotoUrl" class="glass-input" placeholder="https://...">
           </div>
           <div class="field-group">
-            <label class="field-label">
+            <label class="field-label" for="settingsBio">
               Bio
               <span id="bioCharCount" class="char-count">0/160</span>
             </label>
@@ -154,23 +154,23 @@
   <div id="slidePanel" class="slide-panel">
     <div class="panel-header">
       <h2 id="panelTitle" class="panel-title">Adicionar Link</h2>
-      <button id="closePanel" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+      <button id="closePanel" class="icon-btn" aria-label="Fechar painel"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="panel-body">
       <div class="field-group">
-        <label class="field-label">Título *</label>
+        <label class="field-label" for="linkTitleInput">Título *</label>
         <input type="text" id="linkTitleInput" class="glass-input" placeholder="Meu site">
       </div>
       <div class="field-group">
-        <label class="field-label">URL *</label>
+        <label class="field-label" for="linkUrlInput">URL *</label>
         <input type="url" id="linkUrlInput" class="glass-input" placeholder="https://...">
       </div>
       <div class="field-group">
-        <label class="field-label">Descrição</label>
+        <label class="field-label" for="linkDescInput">Descrição</label>
         <textarea id="linkDescInput" class="glass-input" rows="2" placeholder="Opcional"></textarea>
       </div>
       <div class="field-group">
-        <label class="field-label">Imagem (URL)</label>
+        <label class="field-label" for="linkImageInput">Imagem (URL)</label>
         <input type="url" id="linkImageInput" class="glass-input" placeholder="https://...">
       </div>
     </div>
