@@ -865,8 +865,14 @@ async function loadTheme() {
   if (!currentUser) return;
   try {
     const doc = await db.collection('users').doc(currentUser.uid).get();
-    const idx = doc.data()?.themeIndex ?? -1;
-    applyTheme(idx);
+    const firestoreIdx = doc.data()?.themeIndex ?? -1;
+    const localIdx = parseInt(localStorage.getItem('themeIndex') ?? '-1', 10);
+    if (firestoreIdx >= 0) {
+      applyTheme(firestoreIdx);
+    } else if (localIdx >= 0) {
+      applyTheme(localIdx);
+      db.collection('users').doc(currentUser.uid).update({ themeIndex: localIdx }).catch(() => {});
+    }
   } catch (_) {}
 }
 
