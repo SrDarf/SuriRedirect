@@ -1221,7 +1221,13 @@ body.theme-active .panel-preview-card {
 .theme-swatch:hover { transform: scale(1.1); }
 .theme-swatch.active { border-color: #ffffff; box-shadow: 0 0 0 1px rgba(255,255,255,0.3); }
 
-#previewContainer { display: block; width: 100%; }
+#previewContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 1.5rem 0;
+}
 
 #sharedScreen {
   display: none;
@@ -1490,6 +1496,7 @@ body.theme-active .panel-preview-card {
 }
 
 .sidebar-social { text-decoration: none; }
+
 
 body.app-visible .credits-widget { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
 

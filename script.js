@@ -266,11 +266,6 @@ function swapAuthSides() {
         linkRows[0].querySelector('.deco-link-url').textContent = 'github.com/srdarf';
         linkRows[0].querySelector('.deco-clicks').innerHTML = '47 <i class="fa-solid fa-arrow-trend-up"></i>';
       }
-      if (linkRows[1]) {
-        linkRows[1].querySelector('.deco-link-icon').style.color = '#e1306c';
-        linkRows[1].querySelector('.deco-link-url').textContent = '';
-        linkRows[1].querySelector('.deco-clicks').innerHTML = '12';
-      }
     }
   }, DURATION / 2);
 
