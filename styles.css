@@ -1286,19 +1286,22 @@ body.theme-active #mainContent {
 }
 
 @keyframes screenSlideUp {
-  from { transform: translateY(0);    opacity: 1; }
-  to   { transform: translateY(-36px); opacity: 0; }
+  from { transform: translateY(0);     opacity: 1; }
+  to   { transform: translateY(-18px); opacity: 0; }
 }
 @keyframes screenSlideIn {
-  from { transform: translateY(28px); opacity: 0; }
+  from { transform: translateY(14px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
 }
 .screen-exit {
-  animation: screenSlideUp 0.4s cubic-bezier(0.4, 0, 1, 1) forwards;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 100;
+  animation: screenSlideUp 0.32s cubic-bezier(0.4, 0, 0.6, 1) forwards;
   pointer-events: none;
 }
 .screen-enter {
-  animation: screenSlideIn 0.5s cubic-bezier(0, 0, 0.2, 1) forwards;
+  animation: screenSlideIn 0.38s cubic-bezier(0.2, 0, 0.2, 1) forwards;
 }
 
 .sidebar-social { text-decoration: none; }

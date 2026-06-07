@@ -86,14 +86,15 @@ function showAppShell() {
   shared.classList.remove('visible');
 
   auth.classList.add('screen-exit');
+  app.classList.add('visible', 'screen-enter');
+  document.body.classList.add('app-visible');
 
   setTimeout(() => {
     auth.style.display = 'none';
     auth.classList.remove('screen-exit');
-    app.classList.add('visible', 'screen-enter');
-    document.body.classList.add('app-visible');
-    setTimeout(() => app.classList.remove('screen-enter'), 550);
-  }, 380);
+  }, 340);
+
+  setTimeout(() => app.classList.remove('screen-enter'), 420);
 }
 
 function showSharedScreen() {
