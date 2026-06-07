@@ -257,7 +257,7 @@ function swapAuthSides() {
       if (avatar)   avatar.textContent = 'S';
       if (decoName) decoName.textContent = '@suri';
       if (decoBio)  decoBio.textContent = 'Dev · Design · Café';
-      if (shareVal) shareVal.textContent = 'XK9P2R';
+      if (shareVal) shareVal.textContent = 'XYZ123';
       if (linkRows[0]) {
         linkRows[0].querySelector('.deco-link-icon').innerHTML = '<i class="fa-brands fa-github"></i>';
         linkRows[0].querySelector('.deco-link-icon').style.color = '';
