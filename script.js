@@ -782,10 +782,13 @@ function applyTheme(index) {
     document.body.style.backgroundAttachment = 'fixed';
     document.body.classList.add('theme-active');
     sidebar.style.background = 'rgba(0,0,0,0.35)';
-
     root.style.setProperty('--auth-left-bg', `linear-gradient(155deg, ${c1}38 0%, ${c2}47 100%)`);
     root.style.setProperty('--auth-orb1', `${c1}4d`);
     root.style.setProperty('--auth-orb2', `${c2}40`);
+    const r = parseInt(c1.slice(1,3), 16);
+    const g = parseInt(c1.slice(3,5), 16);
+    const b = parseInt(c1.slice(5,7), 16);
+    root.style.setProperty('--theme-rgb', `${r}, ${g}, ${b}`);
   }
   localStorage.setItem('themeIndex', index);
   document.querySelectorAll('.theme-swatch').forEach((s, i) => {
@@ -939,7 +942,6 @@ function buildPublicContent(userData, links) {
       btn.style.transition = 'transform 0.65s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease';
       btn.style.transform  = '';
       btn.style.opacity    = '';
-
       setTimeout(() => { btn.style.transition = ''; }, 700);
     }, 80 + i * 90);
   });
@@ -992,7 +994,6 @@ async function handlePublicLinkClick(linkId, url) {
       clickCount: firebase.firestore.FieldValue.increment(1)
     });
   } catch (_) {
-
   }
   window.open(url, '_blank', 'noopener,noreferrer');
 }
@@ -1013,7 +1014,6 @@ function initMobileNav() {
 }
 
 (function () {
-
   const decos = document.querySelectorAll('.deco-card');
   decos.forEach((card, i) => {
     setTimeout(() => card.classList.add('deco-visible'), 620 + i * 140);

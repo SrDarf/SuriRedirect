@@ -104,10 +104,15 @@ body.theme-active .modal-content {
   backdrop-filter: blur(20px) saturate(140%);
 }
 
-body.theme-active .glass-input,
+body.theme-active .glass-input {
+  background: rgba(var(--theme-rgb), 0.18) !important;
+  border-color: rgba(var(--theme-rgb), 0.35) !important;
+}
+
 body.theme-active .glass-input:focus {
-  background: rgba(0, 0, 0, 0.38) !important;
-  border-color: rgba(255,255,255,0.16) !important;
+  background: rgba(var(--theme-rgb), 0.28) !important;
+  border-color: rgba(var(--theme-rgb), 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(var(--theme-rgb), 0.15) !important;
 }
 
 body.theme-active #mainContent {
