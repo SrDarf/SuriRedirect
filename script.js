@@ -520,11 +520,45 @@ function escHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function updatePanelPreview() {
+  const titleVal = document.getElementById('linkTitleInput').value.trim();
+  const urlVal   = document.getElementById('linkUrlInput').value.trim();
+  const descVal  = document.getElementById('linkDescInput').value.trim();
+  const imgVal   = document.getElementById('linkImageInput').value.trim();
+
+  const previewTitle = document.getElementById('previewTitle');
+  const previewUrl   = document.getElementById('previewUrl');
+  const previewDesc  = document.getElementById('previewDesc');
+  const previewThumb = document.getElementById('previewThumb');
+  const card         = document.querySelector('.panel-preview-card');
+
+  previewTitle.textContent = titleVal || 'Título do link';
+  previewTitle.style.opacity = titleVal ? '1' : '0.3';
+
+  previewUrl.textContent = urlVal || 'https://...';
+  previewUrl.style.opacity = urlVal ? '1' : '0.3';
+
+  previewDesc.textContent = descVal;
+  previewDesc.style.display = descVal ? 'block' : 'none';
+
+  const thumbIcon = '<i class="fa-solid fa-link"></i>';
+  if (imgVal && isSafeUrl(imgVal)) {
+    previewThumb.innerHTML = `<img src="${imgVal}" alt="" onerror="this.parentElement.innerHTML='${thumbIcon}'">`;
+  } else {
+    previewThumb.innerHTML = thumbIcon;
+  }
+
+  card.classList.remove('updated');
+  void card.offsetWidth;
+  card.classList.add('updated');
+}
+
 function openPanel(linkId) {
   editingLinkId = linkId;
   const panel = document.getElementById('slidePanel');
   const overlay = document.getElementById('panelOverlay');
-  const title = document.getElementById('panelTitle');
+  const titleEl = document.getElementById('panelTitle');
+  const headerIcon = document.querySelector('.panel-header-icon i');
 
   document.getElementById('linkTitleInput').value = '';
   document.getElementById('linkUrlInput').value = '';
@@ -532,7 +566,8 @@ function openPanel(linkId) {
   document.getElementById('linkImageInput').value = '';
 
   if (linkId) {
-    title.textContent = 'Editar Link';
+    titleEl.textContent = 'Editar Link';
+    if (headerIcon) { headerIcon.className = 'fa-solid fa-pen'; }
     db.collection('links').doc(linkId).get().then(doc => {
       if (!doc.exists) return;
       const d = doc.data();
@@ -540,14 +575,21 @@ function openPanel(linkId) {
       document.getElementById('linkUrlInput').value = d.url || '';
       document.getElementById('linkDescInput').value = d.descriptionUrl || '';
       document.getElementById('linkImageInput').value = d.imgUrl || '';
+      updatePanelPreview();
     });
   } else {
-    title.textContent = 'Adicionar Link';
+    titleEl.textContent = 'Adicionar Link';
+    if (headerIcon) { headerIcon.className = 'fa-solid fa-link'; }
   }
 
+  updatePanelPreview();
   panel.classList.add('open');
   overlay.classList.add('visible');
 }
+
+['linkTitleInput','linkUrlInput','linkDescInput','linkImageInput'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updatePanelPreview);
+});
 
 function closePanel() {
   document.getElementById('slidePanel').classList.remove('open');

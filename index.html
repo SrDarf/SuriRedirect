@@ -232,29 +232,62 @@
   <div id="panelOverlay" class="panel-overlay"></div>
   <div id="slidePanel" class="slide-panel">
     <div class="panel-header">
-      <h2 id="panelTitle" class="panel-title">Adicionar Link</h2>
+      <div class="panel-header-inner">
+        <div class="panel-header-icon"><i class="fa-solid fa-link"></i></div>
+        <h2 id="panelTitle" class="panel-title">Adicionar Link</h2>
+      </div>
       <button id="closePanel" class="icon-btn" aria-label="Fechar painel"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="panel-body">
-      <div class="field-group">
-        <label class="field-label" for="linkTitleInput">Título *</label>
-        <input type="text" id="linkTitleInput" class="glass-input" placeholder="Meu site">
+      <div class="panel-preview">
+        <span class="panel-preview-label">Prévia</span>
+        <div class="panel-preview-card">
+          <div class="panel-preview-thumb" id="previewThumb">
+            <i class="fa-solid fa-link"></i>
+          </div>
+          <div class="panel-preview-info">
+            <div class="panel-preview-title" id="previewTitle">Título do link</div>
+            <div class="panel-preview-desc" id="previewDesc"></div>
+            <div class="panel-preview-url" id="previewUrl">https://...</div>
+          </div>
+          <i class="fa-solid fa-arrow-up-right-from-square panel-preview-arrow"></i>
+        </div>
       </div>
-      <div class="field-group">
-        <label class="field-label" for="linkUrlInput">URL *</label>
-        <input type="url" id="linkUrlInput" class="glass-input" placeholder="https://...">
-      </div>
-      <div class="field-group">
-        <label class="field-label" for="linkDescInput">Descrição</label>
-        <textarea id="linkDescInput" class="glass-input" rows="2" placeholder="Opcional"></textarea>
-      </div>
-      <div class="field-group">
-        <label class="field-label" for="linkImageInput">Imagem (URL)</label>
-        <input type="url" id="linkImageInput" class="glass-input" placeholder="https://...">
+      <div class="panel-fields">
+        <div class="field-group">
+          <label class="field-label" for="linkTitleInput">Título *</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-pen input-icon"></i>
+            <input type="text" id="linkTitleInput" class="glass-input" placeholder="Meu site">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="linkUrlInput">URL *</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-link input-icon"></i>
+            <input type="url" id="linkUrlInput" class="glass-input" placeholder="https://...">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="linkDescInput">Descrição</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-align-left input-icon input-icon--top"></i>
+            <textarea id="linkDescInput" class="glass-input" rows="2" placeholder="Opcional"></textarea>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="linkImageInput">Imagem (URL)</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-image input-icon"></i>
+            <input type="url" id="linkImageInput" class="glass-input" placeholder="https://...">
+          </div>
+        </div>
       </div>
     </div>
     <div class="panel-footer">
-      <button id="saveLinkBtn" class="btn-primary">Salvar</button>
+      <button id="saveLinkBtn" class="btn-primary">
+        <i class="fa-solid fa-check"></i> Salvar link
+      </button>
     </div>
   </div>
 
