@@ -925,18 +925,34 @@ async function loadPreview() {
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
     container.innerHTML = '';
-    container.appendChild(buildPublicContent(userData, links));
+    renderPublicInto(container, userData, links);
   } catch (err) {
     container.innerHTML = '<p style="color:var(--text-secondary)">Erro ao carregar preview</p>';
   }
 }
 
-function buildPublicContent(userData, links) {
-  const headerEl = document.getElementById('sharedHeader');
-  const listEl   = document.getElementById('sharedLinkList');
-  headerEl.innerHTML = '';
-  listEl.innerHTML   = '';
+function renderPublicInto(container, userData, links) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'shared-wrapper';
 
+  const glass = document.createElement('div');
+  glass.className = 'shared-glass';
+
+  const headerEl = document.createElement('div');
+  headerEl.id = 'previewHeader';
+  const listEl = document.createElement('div');
+  listEl.className = 'shared-link-list';
+
+  glass.appendChild(headerEl);
+  glass.appendChild(listEl);
+  wrapper.appendChild(glass);
+  container.appendChild(wrapper);
+
+  populatePublicHeader(headerEl, userData);
+  populatePublicLinks(listEl, links);
+}
+
+function populatePublicHeader(headerEl, userData) {
   let avatarHtml;
   if (userData.photoUrl && isSafeUrl(userData.photoUrl)) {
     avatarHtml = `<img src="${escHtml(userData.photoUrl)}" alt="" class="shared-avatar" onerror="this.outerHTML='<div class=\\'shared-avatar-fallback\\'>${escHtml((userData.username||'?')[0])}</div>'">`;
@@ -948,25 +964,24 @@ function buildPublicContent(userData, links) {
     <div class="shared-username">${escHtml(userData.username || 'Usuário')}</div>
     ${userData.bio ? `<div class="shared-bio">${escHtml(userData.bio)}</div>` : ''}
   `;
+}
 
+function populatePublicLinks(listEl, links) {
+  listEl.innerHTML = '';
   if (links.length === 0) {
     listEl.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:1rem 0">Nenhum link público</p>';
     return;
   }
-
   const rng = (min, max) => Math.random() * (max - min) + min;
-
   links.forEach((link, i) => {
     const btn = document.createElement('button');
     btn.className = 'public-link-card';
-
     let thumbHtml;
     if (link.imgUrl && isSafeUrl(link.imgUrl)) {
       thumbHtml = `<img src="${escHtml(link.imgUrl)}" alt="" class="public-thumb" onerror="this.outerHTML='<div class=\\'public-thumb-placeholder\\'><i class=\\'fa-solid fa-link\\'></i></div>'">`;
     } else {
       thumbHtml = `<div class="public-thumb-placeholder"><i class="fa-solid fa-link"></i></div>`;
     }
-
     btn.innerHTML = `
       ${thumbHtml}
       <div class="public-link-info">
@@ -975,18 +990,14 @@ function buildPublicContent(userData, links) {
       </div>
       <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--text-tertiary);font-size:0.75rem;flex-shrink:0"></i>
     `;
-
     const safeUrl = isSafeUrl(link.url) ? link.url : '#';
     btn.addEventListener('click', () => handlePublicLinkClick(link.id, safeUrl));
-
     const tx  = rng(-55, 55);
     const ty  = rng(-40, 40);
     const rot = rng(-9, 9);
     btn.style.transform = `translate(${tx}px, ${ty}px) rotate(${rot}deg) scale(0.82)`;
     btn.style.opacity   = '0';
-
     listEl.appendChild(btn);
-
     setTimeout(() => {
       btn.style.transition = 'transform 0.65s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease';
       btn.style.transform  = '';
@@ -994,6 +1005,15 @@ function buildPublicContent(userData, links) {
       setTimeout(() => { btn.style.transition = ''; }, 700);
     }, 80 + i * 90);
   });
+}
+
+function buildPublicContent(userData, links) {
+  const headerEl = document.getElementById('sharedHeader');
+  const listEl   = document.getElementById('sharedLinkList');
+  headerEl.innerHTML = '';
+  listEl.innerHTML   = '';
+  populatePublicHeader(headerEl, userData);
+  populatePublicLinks(listEl, links);
 }
 
 async function fetchAndDisplaySharedLinks(shareCode) {
